@@ -117,16 +117,16 @@ bool is_legal(const int sudoku[9][9], point pt) {
         }
     }
 
-    // // check the 3*3 grid
-    // for (int j = 0; j < 3; j++) {
-    //     for (int k = 0; k < 3; k++) {
-    //         if (sudoku[(pt.x / 3) * 3 + j][(pt.y / 3) * 3 + k] ==
-    //                 sudoku[pt.x][pt.y] &&
-    //             (pt.x / 3) * 3 + j != pt.x && (pt.y / 3) * 3 + k != pt.y) {
-    //             return false;
-    //         }
-    //     }
-    // }
+    // check the 3*3 grid
+    for (int j = 0; j < 3; j++) {
+        for (int k = 0; k < 3; k++) {
+            if (sudoku[(pt.x / 3) * 3 + j][(pt.y / 3) * 3 + k] ==
+                    sudoku[pt.x][pt.y] &&
+                (pt.x / 3) * 3 + j != pt.x && (pt.y / 3) * 3 + k != pt.y) {
+                return false;
+            }
+        }
+    }
 
     return true;
 }
@@ -210,6 +210,10 @@ point find_start(int sudoku[9][9], int i, int j) {
         }
         if (sudoku[k][j] != 0) {
             mark_row_or_col[sudoku[k][j] - 1] = 1;
+        }
+        if (sudoku[(i / 3) * 3 + k / 3][(j / 3) * 3 + k % 3] != 0) {
+            mark_row_or_col[sudoku[(i / 3) * 3 + k / 3][(j / 3) * 3 + k % 3] -
+                            1] = 1;
         }
     }
     calc_possibility(mark_row_or_col, &largest_possibility);
