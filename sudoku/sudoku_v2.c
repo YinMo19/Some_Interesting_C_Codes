@@ -18,6 +18,10 @@
 #include <string.h>
 #include <time.h>
 
+// if you want to optimize the code,
+// uncomment the following line
+// #pragma GCC optimize("Ofast")
+
 #define __find_next__(place_1, place_2, place_3, place_4)                      \
     if (place_3 != place_4 && sudoku[place_1][place_2] == 0) {                 \
         haven_o_in_row_or_col = true;                                          \
@@ -142,7 +146,7 @@ bool is_solved(const int sudoku[9][9]) {
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
             point tmp = {i, j, 0};
-            if (is_legal(sudoku, tmp) == false || sudoku[i][j] == 0) {
+            if (sudoku[i][j] == 0 || !is_legal(sudoku, tmp)) {
                 return false;
             }
         }
@@ -277,13 +281,19 @@ point find_start_all(int sudoku[9][9]) {
 
     // if the sudoku is undeterminable,
     // return a simple point
-    point      start = find_start_rest(sudoku);
-    static int i     = 0;
-    for (; i < 9; i++) {
-        start.content            = i + 1;
-        sudoku[start.x][start.y] = start.content;
-        if (is_legal(sudoku, start)) {
-            return start;
+    point start = {0, 0, 0};
+    while (true) {
+        start.x = rand() % 9;
+        start.y = rand() % 9;
+        if (sudoku[start.x][start.y] == 0) {
+            for (int i = 1; i <= 9; i++) {
+                sudoku[start.x][start.y] = i;
+                if (is_legal(sudoku, start)) {
+                    start.content            = i;
+                    sudoku[start.x][start.y] = 0;
+                    return start;
+                }
+            }
         }
     }
 
@@ -371,8 +381,9 @@ void kill_content(char *filename) {
     fclose(fp);
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
     clock_t _start = clock();
+    srand(time(0));
 
     // for debugging and next time
     // you generate a new sudoku
@@ -385,13 +396,19 @@ int main(void) {
     // find the start point and mark
     // solve the sudoku
     undermined = true;
-    while (undermined) {
+    while (undermined || solve_method < 2) {
         undermined               = false;
         point start              = find_start_all(sudoku);
         sudoku[start.x][start.y] = start.content;
         solve_sudoku(sudoku, start);
+        sudoku[start.x][start.y] = 0;
     }
 
+
+    // if the sudoku has only one solution
+    if (solve_method == 2) {
+        printf("Only one solution.\n");
+    }
     // print the time taken
     clock_t end       = clock();
     double  time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
