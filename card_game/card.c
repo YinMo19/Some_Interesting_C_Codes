@@ -1,8 +1,18 @@
-// CARD_GAME:
-// Ask the customer to think of a number, and ask the customer to
-// choose the card with that number among some cards, if you let the organizer
-// know the card that the customer has chosen, then you can know the number that
-// the customer wants
+/**
+ * @file card.c
+ * @author YinMo19 (YinMo19@proton.me)
+ * @brief CARD_GAME:
+ * Ask the customer to think of a number, and ask the customer to
+ * choose the card with that number among some cards, if you let the organizer
+ * know the card that the customer has chosen, then you can know the number that
+ * the customer wants
+ *
+ * @version 1.0
+ * @date 2024-01-24
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
