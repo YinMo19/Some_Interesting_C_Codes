@@ -67,7 +67,7 @@ void file_read(int sudoku[9][9]) {
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
             fscanf(fp, "%c", &tmp);
-            if (tmp <= '9' && tmp >= '0') {
+            if (tmp <= '9' && tmp > '0') {
                 sudoku[i][j] = tmp - '0';
             }
         }
