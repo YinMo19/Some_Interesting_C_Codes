@@ -289,7 +289,7 @@ void solve_sudoku(int sudoku[9][9], point start,
     }
     if (is_solved(sudoku)) {
         write_sudoku(sudoku, "sudoku_ans.txt");
-        solve_method ++ ;
+        solve_method++;
 
         // if the sudoku solve method up to 5, exit
         if (solve_method == max_generate_solution + 1) {
@@ -391,7 +391,6 @@ void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
     kill_content("sudoku_ans_format.txt");
     write_sudoku(sudoku, "sudoku_ans_format.txt");
 
-
     // initialize the simpliest_sudoku
     int simpliest_sudoku[9][9] = {0};
     for (int i = 0; i < 9; i++) {
@@ -401,13 +400,7 @@ void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
     // simplily delete some grid
     int address = 0;
 
-    // for (int i = 0; i < 2; i++) {
-    //     address                                    = rand() % 81;
-    //     sudoku[address / 9][address % 9]           = 0;
-    //     simpliest_sudoku[address / 9][address % 9] = 0;
-    // }
-
-    // delete the sudoku for random choice
+    // initialize the time taken and one_count
     clock_t _start    = clock();
     clock_t end       = clock();
     double  time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
@@ -415,15 +408,26 @@ void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
 
     while (one_count < 10) {
         while (true) {
+
+            // the address is chosen randomly
             address = rand() % 81;
+
+            // if the grid is not empty
             if (simpliest_sudoku[address / 9][address % 9] != 0) {
+
+                // reset the solve_method
+                // and solve the sudoku to find the method is only or not
+                // if not, then break, and the last one (sudoku[9][9])
+                // will be the simplest
                 solve_method                               = 1;
                 simpliest_sudoku[address / 9][address % 9] = 0;
                 undermined                                 = true;
                 while (undermined && solve_method < 2) {
+
                     // mark the time start
                     _start = clock();
 
+                    // solve the sudoku
                     undermined  = false;
                     point start = find_start_all(simpliest_sudoku);
                     simpliest_sudoku[start.x][start.y] = start.content;
@@ -439,13 +443,30 @@ void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
                         break;
                     }
                 }
-                // calc the one_count
+
+                /**
+                 * @brief calc the one_count
+                 *        Why? If I found after delete a number,
+                 *        it have multi-solutions,it DOSEN'T mean that
+                 *        delete other numbers will.
+                 *
+                 *        So, the one_count can be used to judge
+                 *        if the sudoku is only one solution
+                 *        or not.So break the while into the outer while
+                 *        to choose a new point randomly.
+                 *
+                 */
                 if (solve_method > 2) {
                     simpliest_sudoku[address / 9][address % 9] =
                         sudoku[address / 9][address % 9];
                     one_count++;
                     break;
                 }
+
+                // if the check before is passed,
+                // which means the sudoku is still one solution
+                // then delete the number in this grid
+                // in the original sudoku
                 sudoku[address / 9][address % 9] = 0;
 
             } else {
