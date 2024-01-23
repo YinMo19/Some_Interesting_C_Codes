@@ -23,24 +23,6 @@
 // uncomment the following line
 // #pragma GCC optimize("Ofast")
 
-#define __find_next__(place_1, place_2, place_3, place_4)                      \
-    if (place_3 != place_4 && sudoku[place_1][place_2] == 0) {                 \
-        haven_o_in_row_or_col = true;                                          \
-        point next_in_func    = find_start(sudoku, place_1, place_2);          \
-        next.x                = next_in_func.x;                                \
-        next.y                = next_in_func.y;                                \
-        next.content          = next_in_func.content;                          \
-        if (next.y != -1) {                                                    \
-            find = true;                                                       \
-            break;                                                             \
-        } else {                                                               \
-            if (largest_possibility >= start.content) {                        \
-                largest_possibility = start.content;                           \
-                tmp_next.x          = place_1;                                 \
-                tmp_next.y          = place_2;                                 \
-            }                                                                  \
-        }                                                                      \
-    }
 
 int main(int argc, char *argv[]) {
     clock_t _start = clock();
