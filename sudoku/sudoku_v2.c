@@ -23,7 +23,6 @@
 // uncomment the following line
 // #pragma GCC optimize("Ofast")
 
-
 int main(int argc, char *argv[]) {
     clock_t _start = clock();
     srand(time(0));
@@ -36,6 +35,10 @@ int main(int argc, char *argv[]) {
     int sudoku[9][9] = {0};
     file_read(sudoku);
 
+    // initialize the time taken
+    clock_t end       = clock();
+    double  time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
+
     // find the start point and mark
     // solve the sudoku
     undermined = true;
@@ -45,15 +48,30 @@ int main(int argc, char *argv[]) {
         sudoku[start.x][start.y] = start.content;
         solve_sudoku(sudoku, start);
         sudoku[start.x][start.y] = 0;
+
+        // calculate the time taken
+        // to provide a judge element
+        end       = clock();
+        time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
+        if (time_used > 5) {
+            break;
+        }
+    }
+
+    // if the sudoku can't be solved in 5 seconds
+    // print the error message
+    if (solve_method == 1) {
+        printf("No solution(in 5 seconds).\n");
     }
 
     // if the sudoku has only one solution
     if (solve_method == 2) {
         printf("Only one solution.\n");
     }
+
     // print the time taken
-    clock_t end       = clock();
-    double  time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
+    end       = clock();
+    time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
     printf("Time taken: %f seconds\n", time_used);
     return 0;
 }

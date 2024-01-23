@@ -11,7 +11,9 @@ factor/factor3
 factor/factor4
 
 sudoku/sudoku2
+sudoku/sudoku3
 sudoku/.vscode
+sudoku/sudoku_ans_format.txt
 sudoku/sudoku_ans.txt
 sudoku/sudoku.txt
 

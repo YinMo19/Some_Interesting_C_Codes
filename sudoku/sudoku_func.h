@@ -44,5 +44,6 @@ point find_start_rest(int sudoku[9][9]);
 point find_start_all(int sudoku[9][9]);
 void solve_sudoku(int sudoku[9][9], point start);
 void kill_content(char *filename);
+void file_read_ans_format(int (*sudoku)[9]);
 
 #endif

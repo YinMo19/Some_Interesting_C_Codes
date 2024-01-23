@@ -4,28 +4,25 @@
  * @brief functions for sudoku
  * @version 0.1
  * @date 2024-01-27
- * 
+ *
  * @copyright Copyright (c) 2024
- * 
+ *
  */
 
+#include "sudoku_func.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "sudoku_func.h"
 
 // if you want to optimize the code,
 // uncomment the following line
 // #pragma GCC optimize("Ofast")
 
-
-
 // global variable for solve_sudoku_method and undermined
 int  solve_method = 1;
 bool undermined   = false;
-
 
 /**
  * @brief read the sudoku from a file
@@ -354,4 +351,30 @@ void solve_sudoku(int sudoku[9][9], point start) {
 void kill_content(char *filename) {
     FILE *fp = fopen(filename, "w");
     fclose(fp);
+}
+
+/**
+ * @brief read file in ans format
+ * 
+ * @param sudoku 
+ */
+void file_read_ans_format(int (*sudoku)[9]) {
+    FILE *input = fopen("sudoku_ans_format.txt", "r");
+
+    // skip the first line
+    fscanf(input, "%*[^\n]%*c");
+
+    // read the sudoku
+    for (int i = 0; i < 12; i++) {
+        for (int j = 0; j < 9; j++) {
+            fscanf(input, "%*[^0-9]%d", &sudoku[i][j]);
+        }
+        if (i == 4 || i == 8) {
+            fscanf(input, "%*[^\n]%*c");
+        }
+        fscanf(input,"%*[^\n]%*c");
+    }
+
+    // close the file
+    fclose(input);
 }
