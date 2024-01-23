@@ -37,8 +37,9 @@
         }                                                                      \
     }
 
-// global variable for solve_sudoku_method
-static int solve_method = 1;
+// global variable for solve_sudoku_method and undermined
+static int  solve_method = 1;
+static bool undermined   = false;
 
 // define a point structure
 typedef struct point {
@@ -89,11 +90,45 @@ void write_sudoku(int sudoku[9][9]) {
         }
         fprintf(output, "\n");
         if (i % 3 == 2 && i != 8) {
-            fprintf(output, "--------------------------------\n");
+            fprintf(output, "----------+----------+----------\n");
         }
     }
     fprintf(output, "\n");
     fclose(output);
+}
+
+/**
+ * @brief Judge the fill in is legal or not
+ *
+ * @param sudoku
+ * @param pt
+ * @return true
+ * @return false
+ */
+bool is_legal(const int sudoku[9][9], point pt) {
+
+    // check the row and the col
+    for (int i = 0; i < 9; i++) {
+        if (sudoku[pt.x][i] == sudoku[pt.x][pt.y] && pt.y != i) {
+            return false;
+        }
+        if (sudoku[i][pt.y] == sudoku[pt.x][pt.y] && pt.x != i) {
+            return false;
+        }
+    }
+
+    // // check the 3*3 grid
+    // for (int j = 0; j < 3; j++) {
+    //     for (int k = 0; k < 3; k++) {
+    //         if (sudoku[(pt.x / 3) * 3 + j][(pt.y / 3) * 3 + k] ==
+    //                 sudoku[pt.x][pt.y] &&
+    //             (pt.x / 3) * 3 + j != pt.x && (pt.y / 3) * 3 + k != pt.y) {
+    //             return false;
+    //         }
+    //     }
+    // }
+
+    return true;
 }
 
 /**
@@ -106,7 +141,8 @@ void write_sudoku(int sudoku[9][9]) {
 bool is_solved(const int sudoku[9][9]) {
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-            if (sudoku[i][j] == 0) {
+            point tmp = {i, j, 0};
+            if (is_legal(sudoku, tmp) == false || sudoku[i][j] == 0) {
                 return false;
             }
         }
@@ -146,8 +182,8 @@ int determin_content(const int mark_row_or_col[9], const int x, const int y) {
             return i + 1;
         }
     }
-    printf("Error!\n");
-    exit(0);
+    undermined = true;
+    return -1;
 }
 
 /**
@@ -198,47 +234,12 @@ point find_start(int sudoku[9][9], int i, int j) {
 }
 
 /**
- * @brief By traversing all the grids, find the start point
+ * @brief find the start point of the sudoku
+ *        which hasn't been filled
  *
  * @param sudoku
  * @return point
  */
-point find_start_all(int sudoku[9][9]) {
-    for (int i = 0; i < 9; i++) {
-        for (int j = 0; j < 9; j++) {
-            point start = find_start(sudoku, i, j);
-            if (start.x != -1) {
-                return start;
-            }
-        }
-    }
-
-    // if the sudoku is unsolvable
-    point start = {-1, -1, 0};
-    printf("Error!\n");
-    return start;
-}
-
-/**
- * @brief Judge the fill in is legal or not
- *
- * @param sudoku
- * @param pt
- * @return true
- * @return false
- */
-bool is_legal(int sudoku[9][9], point pt) {
-    for (int i = 0; i < 9; i++) {
-        if (sudoku[pt.x][i] == sudoku[pt.x][pt.y] && pt.y != i) {
-            return false;
-        }
-        if (sudoku[i][pt.y] == sudoku[pt.x][pt.y] && pt.x != i) {
-            return false;
-        }
-    }
-    return true;
-}
-
 point find_start_rest(int sudoku[9][9]) {
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
@@ -255,6 +256,39 @@ point find_start_rest(int sudoku[9][9]) {
 }
 
 /**
+ * @brief By traversing all the grids, find the start point
+ *
+ * @param sudoku
+ * @return point
+ */
+point find_start_all(int sudoku[9][9]) {
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            point start = find_start(sudoku, i, j);
+            if (start.x != -1) {
+                return start;
+            }
+        }
+    }
+
+    // if the sudoku is undeterminable,
+    // return a simple point
+    point      start = find_start_rest(sudoku);
+    static int i     = 0;
+    for (; i < 9; i++) {
+        start.content            = i + 1;
+        sudoku[start.x][start.y] = start.content;
+        if (is_legal(sudoku, start)) {
+            return start;
+        }
+    }
+
+    // else, raise an error
+    printf("Error!\n");
+    exit(0);
+}
+
+/**
  * @brief Solve the sudoku by DFS algorithm
  *
  * @param sudoku
@@ -264,7 +298,7 @@ void solve_sudoku(int sudoku[9][9], point start) {
 
     // if the sudoku is solved, return
     static bool __is_solved__ = false;
-    if (__is_solved__) {
+    if (__is_solved__ || undermined) {
         return;
     }
     if (is_solved(sudoku)) {
@@ -272,7 +306,7 @@ void solve_sudoku(int sudoku[9][9], point start) {
         printf("Solved!Method:%d\n", solve_method++);
 
         // if the sudoku solve method up to 5, exit
-        if(solve_method == 10){
+        if (solve_method == 10) {
             __is_solved__ = true;
         }
         return;
@@ -345,11 +379,14 @@ int main(void) {
     file_read(sudoku);
 
     // find the start point and mark
-    point start              = find_start_all(sudoku);
-    sudoku[start.x][start.y] = start.content;
-
     // solve the sudoku
-    solve_sudoku(sudoku, start);
+    undermined = true;
+    while (undermined) {
+        undermined               = false;
+        point start              = find_start_all(sudoku);
+        sudoku[start.x][start.y] = start.content;
+        solve_sudoku(sudoku, start);
+    }
 
     // print the time taken
     clock_t end       = clock();
