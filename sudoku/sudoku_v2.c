@@ -19,6 +19,8 @@
 #include <string.h>
 #include <time.h>
 
+#define max_generate_solution 9
+
 // if you want to optimize the code,
 // uncomment the following line
 // #pragma GCC optimize("Ofast")
@@ -42,11 +44,11 @@ int main(int argc, char *argv[]) {
     // find the start point and mark
     // solve the sudoku
     undermined = true;
-    while (undermined || solve_method < 2) {
+    while (undermined && solve_method < 2) {
         undermined               = false;
         point start              = find_start_all(sudoku);
         sudoku[start.x][start.y] = start.content;
-        solve_sudoku(sudoku, start);
+        solve_sudoku(sudoku, start,max_generate_solution);
         sudoku[start.x][start.y] = 0;
 
         // calculate the time taken
@@ -67,6 +69,8 @@ int main(int argc, char *argv[]) {
     // if the sudoku has only one solution
     if (solve_method == 2) {
         printf("Only one solution.\n");
+    } else if (solve_method >= 3) {
+        printf("Totally %d solutions.\n", solve_method - 1);
     }
 
     // print the time taken

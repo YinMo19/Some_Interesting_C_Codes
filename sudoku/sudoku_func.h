@@ -2,7 +2,7 @@
 #define __SUDOKU_FUNC_H__
 
 #include <stdbool.h>
-
+#include <string.h>
 
 #define __find_next__(place_1, place_2, place_3, place_4)                      \
     if (place_3 != place_4 && sudoku[place_1][place_2] == 0) {                 \
@@ -30,20 +30,23 @@ typedef struct point {
     int content;
 } point;
 
-extern int  solve_method ;
-extern bool undermined   ;
+extern int  solve_method;
+extern bool undermined;
+extern bool __is_solved__;
 
-void file_read(int sudoku[9][9]);
-void write_sudoku(int sudoku[9][9]);
-bool is_legal(const int sudoku[9][9], point pt);
-bool is_solved(const int sudoku[9][9]);
-void calc_possibility(int mark_row_or_col[9], int *largest_possibility);
-int determin_content(const int mark_row_or_col[9], const int x, const int y);
+void  file_read(int sudoku[9][9]);
+void  write_sudoku(int sudoku[9][9], char *filename);
+bool  is_legal(const int sudoku[9][9], point pt);
+bool  is_solved(const int sudoku[9][9]);
+void  calc_possibility(int mark_row_or_col[9], int *largest_possibility);
+int   determin_content(const int mark_row_or_col[9], const int x, const int y);
 point find_start(int sudoku[9][9], int i, int j);
 point find_start_rest(int sudoku[9][9]);
 point find_start_all(int sudoku[9][9]);
-void solve_sudoku(int sudoku[9][9], point start);
-void kill_content(char *filename);
-void file_read_ans_format(int (*sudoku)[9]);
+void  solve_sudoku(int sudoku[9][9], point start,
+                   const int max_generate_solution);
+void  kill_content(char *filename);
+void  file_read_ans_format(int (*sudoku)[9], char *filename);
+void  delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]);
 
 #endif

@@ -21,8 +21,9 @@
 // #pragma GCC optimize("Ofast")
 
 // global variable for solve_sudoku_method and undermined
-int  solve_method = 1;
-bool undermined   = false;
+int  solve_method  = 1;
+bool undermined    = false;
+bool __is_solved__ = false;
 
 /**
  * @brief read the sudoku from a file
@@ -54,8 +55,8 @@ void file_read(int sudoku[9][9]) {
  *
  * @param sudoku the sudoku(two dimensional array)
  */
-void write_sudoku(int sudoku[9][9]) {
-    FILE *output = fopen("sudoku_ans.txt", "a+");
+void write_sudoku(int sudoku[9][9], char *filename) {
+    FILE *output = fopen(filename, "a+");
     fprintf(output, "            Method:%d\n", solve_method);
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
@@ -280,19 +281,18 @@ point find_start_all(int sudoku[9][9]) {
  * @param sudoku
  * @param start
  */
-void solve_sudoku(int sudoku[9][9], point start) {
-
+void solve_sudoku(int sudoku[9][9], point start,
+                  const int max_generate_solution) {
     // if the sudoku is solved, return
-    static bool __is_solved__ = false;
     if (__is_solved__ || undermined) {
         return;
     }
     if (is_solved(sudoku)) {
-        write_sudoku(sudoku);
-        printf("Solved!Method:%d\n", solve_method++);
+        write_sudoku(sudoku, "sudoku_ans.txt");
+        solve_method ++ ;
 
         // if the sudoku solve method up to 5, exit
-        if (solve_method == 10) {
+        if (solve_method == max_generate_solution + 1) {
             __is_solved__ = true;
         }
         return;
@@ -329,14 +329,14 @@ void solve_sudoku(int sudoku[9][9], point start) {
     // then call the solve_sudoku to DFS
     if (find) {
         sudoku[next.x][next.y] = next.content;
-        solve_sudoku(sudoku, next);
+        solve_sudoku(sudoku, next, max_generate_solution);
         sudoku[next.x][next.y] = 0;
     } else {
         for (int i = 0; i < 9; i++) {
             tmp_next.content               = i + 1;
             sudoku[tmp_next.x][tmp_next.y] = tmp_next.content;
             if (is_legal(sudoku, tmp_next)) {
-                solve_sudoku(sudoku, tmp_next);
+                solve_sudoku(sudoku, tmp_next, max_generate_solution);
             }
             sudoku[tmp_next.x][tmp_next.y] = 0;
         }
@@ -355,11 +355,11 @@ void kill_content(char *filename) {
 
 /**
  * @brief read file in ans format
- * 
- * @param sudoku 
+ *
+ * @param sudoku
  */
-void file_read_ans_format(int (*sudoku)[9]) {
-    FILE *input = fopen("sudoku_ans_format.txt", "r");
+void file_read_ans_format(int (*sudoku)[9], char *filename) {
+    FILE *input = fopen(filename, "r");
 
     // skip the first line
     fscanf(input, "%*[^\n]%*c");
@@ -372,9 +372,85 @@ void file_read_ans_format(int (*sudoku)[9]) {
         if (i == 4 || i == 8) {
             fscanf(input, "%*[^\n]%*c");
         }
-        fscanf(input,"%*[^\n]%*c");
+        fscanf(input, "%*[^\n]%*c");
     }
 
     // close the file
     fclose(input);
+}
+
+/**
+ * @brief delete for random choice, find the simplest sudoku
+ *
+ * @param sudoku
+ */
+void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
+
+    // get the sudoku in ans format
+    file_read_ans_format(sudoku, "sudoku_ans.txt");
+    kill_content("sudoku_ans_format.txt");
+    write_sudoku(sudoku, "sudoku_ans_format.txt");
+
+
+    // initialize the simpliest_sudoku
+    int simpliest_sudoku[9][9] = {0};
+    for (int i = 0; i < 9; i++) {
+        memcpy(simpliest_sudoku[i], sudoku[i], sizeof(int) * 9);
+    }
+
+    // simplily delete some grid
+    int address = 0;
+
+    // for (int i = 0; i < 2; i++) {
+    //     address                                    = rand() % 81;
+    //     sudoku[address / 9][address % 9]           = 0;
+    //     simpliest_sudoku[address / 9][address % 9] = 0;
+    // }
+
+    // delete the sudoku for random choice
+    clock_t _start    = clock();
+    clock_t end       = clock();
+    double  time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
+    int     one_count = 0;
+
+    while (one_count < 10) {
+        while (true) {
+            address = rand() % 81;
+            if (simpliest_sudoku[address / 9][address % 9] != 0) {
+                solve_method                               = 1;
+                simpliest_sudoku[address / 9][address % 9] = 0;
+                undermined                                 = true;
+                while (undermined && solve_method < 2) {
+                    // mark the time start
+                    _start = clock();
+
+                    undermined  = false;
+                    point start = find_start_all(simpliest_sudoku);
+                    simpliest_sudoku[start.x][start.y] = start.content;
+                    __is_solved__                      = false;
+                    solve_sudoku(simpliest_sudoku, start, 5);
+                    simpliest_sudoku[start.x][start.y] = 0;
+
+                    // calculate the time taken
+                    // to provide a judge element
+                    end       = clock();
+                    time_used = ((double) (end - _start)) / CLOCKS_PER_SEC;
+                    if (time_used > 0.2) {
+                        break;
+                    }
+                }
+                // calc the one_count
+                if (solve_method > 2) {
+                    simpliest_sudoku[address / 9][address % 9] =
+                        sudoku[address / 9][address % 9];
+                    one_count++;
+                    break;
+                }
+                sudoku[address / 9][address % 9] = 0;
+
+            } else {
+                continue;
+            }
+        }
+    }
 }
