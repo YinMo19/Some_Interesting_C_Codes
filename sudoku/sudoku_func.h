@@ -1,9 +1,25 @@
+/**
+ * @file sudoku_func.h
+ * @author YinMo (YinMo19@proton.me)
+ * @brief sudoku_functions for sudoku
+ * @version 1.0
+ * @date 2024-01-24
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #ifndef __SUDOKU_FUNC_H__
 #define __SUDOKU_FUNC_H__
 
 #include <stdbool.h>
+
+// for memcpy
 #include <string.h>
 
+// define a function to find the next point
+// use define to achieve the same format for
+// col and row.
 #define __find_next__(place_1, place_2, place_3, place_4)                      \
     if (place_3 != place_4 && sudoku[place_1][place_2] == 0) {                 \
         haven_o_in_row_or_col = true;                                          \
@@ -30,10 +46,12 @@ typedef struct point {
     int content;
 } point;
 
+// global variables
 extern int  solve_method;
 extern bool undermined;
 extern bool __is_solved__;
 
+// functions defined in sudoku_func.c
 void  file_read(int sudoku[9][9]);
 void  write_sudoku(int sudoku[9][9], char *filename);
 bool  is_legal(const int sudoku[9][9], point pt);
