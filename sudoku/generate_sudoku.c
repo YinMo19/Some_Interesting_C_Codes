@@ -1,3 +1,16 @@
+/**
+ * @file generate_sudoku.c
+ * @author YinMo (YinMo19@proton.me)
+ * @brief Automatically generate a Sudoku and its solution. Enter them into two
+ * txt files in the same folder. Compile with sudoku_func.c.
+ *  
+ * @version 1.0
+ * @date 2024-01-24
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
+
 #include "sudoku_func.h"
 #include <stdbool.h>
 #include <stdio.h>
