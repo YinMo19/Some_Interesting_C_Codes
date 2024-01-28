@@ -39,9 +39,7 @@ int main(int argc, char *argv[]) {
     // generate the solved sudoku into
     // the ans file:
     // sukoku_ans.txt
-    undermined = true;
-    while (undermined && solve_method < 2) {
-        undermined               = false;
+    while (solve_method < 2) {
         point start              = find_start_all(sudoku);
         sudoku[start.x][start.y] = start.content;
         solve_sudoku(sudoku, start, max_generate_solution);

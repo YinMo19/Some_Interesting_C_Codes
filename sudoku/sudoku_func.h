@@ -48,14 +48,14 @@ typedef struct point {
 
 // global variables
 extern int  solve_method;
-extern bool undermined;
 extern bool __is_solved__;
 
 // functions defined in sudoku_func.c
-void  file_read(int sudoku[9][9]);
-void  write_sudoku(int sudoku[9][9], char *filename);
-bool  is_legal(const int sudoku[9][9], point pt);
-bool  is_solved(const int sudoku[9][9]);
+static inline _Noreturn void panic();
+void                         file_read(int sudoku[9][9]);
+void                         write_sudoku(int sudoku[9][9], char *filename);
+bool                         is_legal(const int sudoku[9][9], point pt);
+bool                         is_solved(const int sudoku[9][9]);
 void  calc_possibility(int mark_row_or_col[9], int *largest_possibility);
 int   determin_content(const int mark_row_or_col[9], const int x, const int y);
 point find_start(int sudoku[9][9], int i, int j);

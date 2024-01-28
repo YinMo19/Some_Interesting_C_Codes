@@ -43,12 +43,10 @@ int main(int argc, char *argv[]) {
 
     // find the start point and mark
     // solve the sudoku
-    undermined = true;
-    while (undermined && solve_method < 2) {
-        undermined               = false;
+    while (solve_method < 2) {
         point start              = find_start_all(sudoku);
         sudoku[start.x][start.y] = start.content;
-        solve_sudoku(sudoku, start,max_generate_solution);
+        solve_sudoku(sudoku, start, max_generate_solution);
         sudoku[start.x][start.y] = 0;
 
         // calculate the time taken

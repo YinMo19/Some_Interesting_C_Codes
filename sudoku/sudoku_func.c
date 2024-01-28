@@ -20,10 +20,14 @@
 // uncomment the following line
 // #pragma GCC optimize("Ofast")
 
-// global variable for solve_sudoku_method and undermined
+// global variable for solve_sudoku_method
 int  solve_method  = 1;
-bool undermined    = false;
 bool __is_solved__ = false;
+
+static inline _Noreturn void panic() {
+    printf("PANIC\n");
+    exit(0);
+}
 
 /**
  * @brief read the sudoku from a file
@@ -159,8 +163,7 @@ int determin_content(const int mark_row_or_col[9], const int x, const int y) {
             return i + 1;
         }
     }
-    undermined = true;
-    return -1;
+    panic();
 }
 
 /**
@@ -284,7 +287,7 @@ point find_start_all(int sudoku[9][9]) {
 void solve_sudoku(int sudoku[9][9], point start,
                   const int max_generate_solution) {
     // if the sudoku is solved, return
-    if (__is_solved__ || undermined) {
+    if (__is_solved__) {
         return;
     }
     if (is_solved(sudoku)) {
@@ -421,14 +424,12 @@ void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
                 // will be the simplest
                 solve_method                               = 1;
                 simpliest_sudoku[address / 9][address % 9] = 0;
-                undermined                                 = true;
-                while (undermined && solve_method < 2) {
+                while (solve_method < 2) {
 
                     // mark the time start
                     _start = clock();
 
                     // solve the sudoku
-                    undermined  = false;
                     point start = find_start_all(simpliest_sudoku);
                     simpliest_sudoku[start.x][start.y] = start.content;
                     __is_solved__                      = false;
