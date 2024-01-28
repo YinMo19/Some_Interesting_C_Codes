@@ -6,7 +6,7 @@ Here are some interesting C codes that I wrote. Among them are:
 
 - `factorial` :This is a program for calculating factorials of very large numbers. We used not only C but also C++ and Python programs to solve the problem. We can find that Python runs the fastest, and its special functions are really better than our own implementation.But don't be discouraged! We implement our own program calculation 20000! It didn't take long, and it was a small challenge for us. We're optimizing directly and step-by-step across a variety of different algorithms, which is a step forward. Isn't that interesting?
 
-- `Card games`：z This is a card game where customers can think of a number in their minds and look for it in the cards and tell the host the card that contains the number. The host can use these cards to get the number in the customer's mind. This program generates these cards.
+- `Card games`：This is a card game where customers can think of a number in their minds and look for it in the cards and tell the host the card that contains the number. The host can use these cards to get the number in the customer's mind. This program generates these cards.
 
 - `Sudoku`: V1.0 Traversing all the grids,and this is the least efficient method.
 
