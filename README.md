@@ -23,4 +23,4 @@ Here are some interesting C codes that I wrote. Among them are:
   
 I want these programs to be elegant and efficient. Most of these programs (most of which were written by me (YinMo19, the developer of this repository)), have been fully annotated by me, and most of the functions are encapsulated as functions(This function and function are two different things, don't get confused~). A small percentage of the code will be uploaded by other contributors. Those codes may not be commented, and of course I hope they have (smiles).
 
-All this seems so delightful,aren't they? Hope they can heelp you.
+All this seems so delightful,aren't they? Hope they can help you.
