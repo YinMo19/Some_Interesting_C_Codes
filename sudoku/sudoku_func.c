@@ -18,7 +18,7 @@
 
 // if you want to optimize the code,
 // uncomment the following line
-// #pragma GCC optimize("Ofast")
+#pragma GCC optimize("Ofast")
 
 // global variable for solve_sudoku_method
 int  solve_method  = 1;
@@ -37,7 +37,7 @@ static inline _Noreturn void panic() {
  *                that stores the sudoku
  */
 void file_read(int sudoku[9][9]) {
-    FILE *fp  = fopen("sudoku.txt", "r");
+    FILE *fp  = fopen("output1", "r");
     char  tmp = 0;
 
     // read the sudoku , '*' means empty
@@ -59,17 +59,20 @@ void file_read(int sudoku[9][9]) {
  *
  * @param sudoku the sudoku(two dimensional array)
  */
-void write_sudoku(int sudoku[9][9], char *filename) {
+void write_sudoku(int sudoku[9][9], char *filename,char *filename2) {
     FILE *output = fopen(filename, "a+");
+    FILE *routput = fopen(filename2, "w");
     fprintf(output, "            Method:%d\n", solve_method);
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-            fprintf(output, "%3d", sudoku[i][j]);
-            if (j % 3 == 2 && j != 8) {
-                fprintf(output, " |");
+          fprintf(output, "%3d", sudoku[i][j]);
+          fprintf(routput, "%d", sudoku[i][j]);
+          if (j % 3 == 2 && j != 8) {
+            fprintf(output, " |");
             }
         }
         fprintf(output, "\n");
+        fprintf(routput, "\n");
         if (i % 3 == 2 && i != 8) {
             fprintf(output, "----------+----------+----------\n");
         }
@@ -291,7 +294,7 @@ void solve_sudoku(int sudoku[9][9], point start,
         return;
     }
     if (is_solved(sudoku)) {
-        write_sudoku(sudoku, "sudoku_ans.txt");
+        write_sudoku(sudoku, "sudoku_ans.txt","output1");
         solve_method++;
 
         // if the sudoku solve method up to 5, exit
@@ -392,7 +395,7 @@ void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
     // get the sudoku in ans format
     file_read_ans_format(sudoku, "sudoku_ans.txt");
     kill_content("sudoku_ans_format.txt");
-    write_sudoku(sudoku, "sudoku_ans_format.txt");
+    write_sudoku(sudoku, "sudoku_ans_format.txt","output1");
 
     // initialize the simpliest_sudoku
     int simpliest_sudoku[9][9] = {0};

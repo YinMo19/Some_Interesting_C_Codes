@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
     // output the sudoku
     kill_content("sudoku_ans.txt");
     kill_content("sudoku_ans_format.txt");
-    write_sudoku(ans, "sudoku_ans.txt");
-    write_sudoku(sudoku, "sudoku_ans_format.txt");
+    write_sudoku(ans, "sudoku_ans.txt","output1");
+    write_sudoku(sudoku, "sudoku_ans_format.txt", "puz");
 
     // print the time taken
     end       = clock();
