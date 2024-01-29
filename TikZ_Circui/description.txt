@@ -1,0 +1,5 @@
+0 R r o- {R_1}
+0 R r o- {R_1}
+1 line d *-
+1 pC u *- {C_1}
+2 line l -o
