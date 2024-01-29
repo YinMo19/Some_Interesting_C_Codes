@@ -1,3 +1,52 @@
+# TikZ-Circui Generator
+
+This is what we expect the workflow to look like
+
+- Draw a circuit sketch yourself (or have a basic idea of composition in mind)
+- Write the basic requirements and requirements in a txt file
+- Execute it with this C program (TikZ-Circuit Generator) to generate a TikZ code
+- Generate a pdf file with your own compiler (or directly on Overleaf) to get the finished product.
+
+## Digital circuits
+
+How the digital circuit generator is compiled
+```
+gcc TikZ_gen.c TikZ_gen_func.c -o TikZ_gen
+```
+Which should be written like this in the txt file.
+```
+< that are marked with the starting point (that is, the line number corresponding to each line)>, <Circuit elements> <direction> <line state> < optional, (the end node) > < (optional,comment, with curly braces).
+... (Every line is such a standard)
+```
+
+There are things to pay attention to:
+- The starting point is the end of the inherited previous component.
+
+- If it is only a line representing a circuit,`<Circuit elements>` fill in 'line'
+
+- The direction is `l` for left, `r` for right, `u` for up, and `d` for down, which refers to the direction of the circuit and is relative to the starting point.
+
+- The beginning and end states of the line are, for example, a solid circle at the beginning of the line and a hollow circle at the end of the line. The solid is represented by *, while the hollow is represented by o, and there is no can __NOT__ be left unwritten!
+
+- The text of the callout is marked with curly braces, e.g. '{nnp}' indicates the abbreviation of the circuit component. If you select Annotation Text, you can select the annotation direction of the text (you only need to add {_} to indicate the opposite of the default, for example, it is originally marked on the left, and optionally on the right)
+
+A standard line input should look like this
+
+```
+0 R r o- {R_1}
+```
+The abbreviation of each component of the circuit (i.e., the `<Circuit elements>` entered in the txt file)
+```
+- R Ordinary Resistor
+- C capacitors
+- L Inductance
+- vC voltage capacitors
+- vR varistor resistors
+- GND grounding
+```
+
+
+
 # TikZ-Circui 生成器
 
 我们期望的工作流应该是这样的
@@ -50,3 +99,6 @@ gcc TikZ_gen.c TikZ_gen_func.c -o TikZ_gen
 
 
 ## 逻辑电路
+
+---
+
