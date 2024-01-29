@@ -23,3 +23,6 @@ sudoku/blank
 sudoku/output2
 sudoku/output1
 sudoku/puz
+
+TikZ_Circui/TikZ_gen
+TikZ_Circui/TikZ_Circuit.tex
