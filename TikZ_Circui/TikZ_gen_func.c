@@ -50,7 +50,7 @@ void write_file_head(char *filename) {
                 "\\usepackage[siunitx]{circuitikz}\n"
                 "\\begin{document}\n"
                 "\\begin{tikzpicture}[scale=2]\n"
-                "	\\draw[color=black, thick]\n");
+                "	\\draw[color=black]\n");
     fclose(fp);
 }
 
@@ -81,7 +81,7 @@ void read_file(char *filename) {
     }
 
     // line count
-    int status = 0;
+    int status = 1;
 
     // when not the end of the file
     while (!feof(fp)) {
@@ -89,6 +89,9 @@ void read_file(char *filename) {
         // read the data by special format
         fscanf(fp, "%d%*c", &circuits[status].start);
         fscanf(fp, "%s%*c", circuits[status].name);
+        if (strcmp(circuits[status].name, "gnd") == 0) {
+            goto _set_;
+        }
         fscanf(fp, "%c%*c", &circuits[status].direction);
         fscanf(fp, "%s", circuits[status].line_shape);
 
@@ -100,10 +103,12 @@ void read_file(char *filename) {
         // the part can be chosen
         tmp = (char) fgetc(fp);
         if (tmp == '[') {
-            fscanf(fp, "%d%*c%*c", &circuits[status].end);
+            fscanf(fp, "%d%*c", &circuits[status].end);
             tmp = (char) fgetc(fp);
             if (tmp == '\n') {
                 goto _set_;
+            } else if (tmp == ' ') {
+                tmp = (char) fgetc(fp);
             }
         }
         if (tmp == '{') {
@@ -116,9 +121,6 @@ void read_file(char *filename) {
                 fscanf(fp, "%*c%c%*c", &circuits[status].desc_dir);
             }
         }
-
-        // read the rest of a line
-        fscanf(fp, "%*[^\n]%*c");
 
     // set the status
     _set_:
@@ -149,6 +151,7 @@ void calc_address(tree *root) {
                     circuits[root->next[branch_cnt]->status].address.y =
                         circuits[circuits[root->next[branch_cnt]->status].end]
                             .address.y;
+                            continue;
                 }
                 circuits[root->next[branch_cnt]->status].address.x =
                     circuits[root->status].address.x + dx[i];
@@ -213,7 +216,7 @@ void print_content(char *filename) {
 
     // set the status counter
     int status_cnt = 1;
-    while (status_cnt < line_cnt) {
+    while (status_cnt < line_cnt -1) {
         // if is ground
         if (strcmp(circuits[status_cnt].name, "gnd") == 0) {
             fprintf(fp, "\t(%d,%d) node[ground]{}\n",

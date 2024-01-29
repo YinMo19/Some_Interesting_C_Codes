@@ -1,5 +1,10 @@
 0 R r o- {R_1}
-0 R r o- {R_1}
 1 line d *-
 1 pC u *- {C_1}
 2 line l -o
+3 vR r - {R_2}
+5 L r - {L_2}
+6 line d -
+7 line l - [1]
+7 gnd
+5 C u - {C_2}
