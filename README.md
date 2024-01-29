@@ -29,7 +29,7 @@ Here are some interesting C codes that I wrote. Among them are:
   g++ xxx.cpp -o sudoku/Ke/xxx
   ```
 
-- `TikZ-Circui Generator` :This is a program that can generate TikZ code according to your needs to quickly draw circuit diagrams. Please see [README.md](TikZ_Circui/README.md) for details.
+- `TikZ-Circui Generator` :This is a program that can generate TikZ code according to your needs to quickly draw circuit diagrams. Please see [README(TikZ_Circui).md](TikZ_Circui/README.md) for details.
 
 I want these programs to be elegant and efficient. Most of these programs (most of which were written by me (YinMo19, the developer of this repository)), have been fully annotated by me, and most of the functions are encapsulated as functions(This function and function are two different things, don't get confused~). A small percentage of the code will be uploaded by other contributors. Those codes may not be commented, and of course I hope they have (smiles).
 
