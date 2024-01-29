@@ -18,7 +18,7 @@ Here are some interesting C codes that I wrote. Among them are:
 
   ```
   gcc sudoku_v2.c sudoku_func.c -o sudoku2
-  gcc generate_sudoku sudoku_func.c -o sudoku3
+  gcc generate_sudoku.c sudoku_func.c -o sudoku3
   ```
   **about the "Ke/" part**
 
