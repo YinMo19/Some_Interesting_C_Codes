@@ -36,8 +36,8 @@ static inline _Noreturn void panic() {
  * @param sudoku the two dimensional array
  *                that stores the sudoku
  */
-void file_read(int sudoku[9][9]) {
-    FILE *fp  = fopen("output1", "r");
+void file_read(int sudoku[9][9], char *filename) {
+    FILE *fp  = fopen(filename, "r");
     char  tmp = 0;
 
     // read the sudoku , '*' means empty
@@ -59,16 +59,16 @@ void file_read(int sudoku[9][9]) {
  *
  * @param sudoku the sudoku(two dimensional array)
  */
-void write_sudoku(int sudoku[9][9], char *filename,char *filename2) {
-    FILE *output = fopen(filename, "a+");
+void write_sudoku(int sudoku[9][9], char *filename, char *filename2) {
+    FILE *output  = fopen(filename, "a+");
     FILE *routput = fopen(filename2, "w");
     fprintf(output, "            Method:%d\n", solve_method);
     for (int i = 0; i < 9; i++) {
         for (int j = 0; j < 9; j++) {
-          fprintf(output, "%3d", sudoku[i][j]);
-          fprintf(routput, "%d", sudoku[i][j]);
-          if (j % 3 == 2 && j != 8) {
-            fprintf(output, " |");
+            fprintf(output, "%3d", sudoku[i][j]);
+            fprintf(routput, "%d", sudoku[i][j]);
+            if (j % 3 == 2 && j != 8) {
+                fprintf(output, " |");
             }
         }
         fprintf(output, "\n");
@@ -294,7 +294,7 @@ void solve_sudoku(int sudoku[9][9], point start,
         return;
     }
     if (is_solved(sudoku)) {
-        write_sudoku(sudoku, "sudoku_ans.txt","output1");
+        write_sudoku(sudoku, "sudoku_ans.txt", "output1");
         solve_method++;
 
         // if the sudoku solve method up to 5, exit
@@ -395,7 +395,7 @@ void delete_sudoku_for_least_num_and_one_solution(int sudoku[9][9]) {
     // get the sudoku in ans format
     file_read_ans_format(sudoku, "sudoku_ans.txt");
     kill_content("sudoku_ans_format.txt");
-    write_sudoku(sudoku, "sudoku_ans_format.txt","output1");
+    write_sudoku(sudoku, "sudoku_ans_format.txt", "output1");
 
     // initialize the simpliest_sudoku
     int simpliest_sudoku[9][9] = {0};

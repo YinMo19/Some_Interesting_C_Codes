@@ -3,7 +3,7 @@
  * @author YinMo (YinMo19@proton.me)
  * @brief Automatically generate a Sudoku and its solution. Enter them into two
  * txt files in the same folder. Compile with sudoku_func.c.
- *  
+ *
  * @version 1.0
  * @date 2024-01-24
  *
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     // output the sudoku
     kill_content("sudoku_ans.txt");
     kill_content("sudoku_ans_format.txt");
-    write_sudoku(ans, "sudoku_ans.txt","output1");
+    write_sudoku(ans, "sudoku_ans.txt", "output1");
     write_sudoku(sudoku, "sudoku_ans_format.txt", "puz");
 
     // print the time taken

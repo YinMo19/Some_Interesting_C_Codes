@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 
     // read the sudoku
     int sudoku[9][9] = {0};
-    file_read(sudoku);
+    file_read(sudoku, "sudoku.txt");
 
     // initialize the time taken
     clock_t end       = clock();
