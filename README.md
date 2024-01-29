@@ -23,6 +23,11 @@ Here are some interesting C codes that I wrote. Among them are:
   **about the "Ke/" part**
 
   Developed by Ke, a coding enthusiast and good friend of the project owner. And he has a competitive coding background but tends to write code with less-than-ideal clarity. The code may not be well-commented.
+  
+  *Notice all codes in Ke/ should be compiled into file Ke/, example:*
+  ```
+  g++ xxx.cpp -o sudoku/Ke/xxx
+  ```
 
 I want these programs to be elegant and efficient. Most of these programs (most of which were written by me (YinMo19, the developer of this repository)), have been fully annotated by me, and most of the functions are encapsulated as functions(This function and function are two different things, don't get confused~). A small percentage of the code will be uploaded by other contributors. Those codes may not be commented, and of course I hope they have (smiles).
 

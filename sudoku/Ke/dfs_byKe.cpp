@@ -33,8 +33,8 @@ void q_sort() {
     p[q[i].x][q[i].y] = '0';
   }
 }
-std::ifstream input("sudoku.txt");
-std::ofstream out("sudoku_ans_2.txt");
+std::ifstream input("puz");
+std::ofstream out("output2");
 void print() {
   printf("#Case %d\n", ++tot);
   for (int i = 0; i < 9; i++) {
@@ -48,6 +48,7 @@ void print() {
         std::cout << "| ";
     }
     std::cout << std::endl;
+    out << std::endl;
   }
   std::cout << std::endl;
 }
