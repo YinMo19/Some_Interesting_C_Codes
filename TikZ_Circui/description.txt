@@ -5,6 +5,14 @@
 3 vR r - {R_2}
 5 L r - {L_2}
 6 line d -
-7 line l - [1]
+7 vR l - [1] {R_3} {_}
 7 gnd
 5 C u - {C_2}
+10 line l -
+11 line l -o
+7 line r -
+13 line u -
+14 line u -
+15 R l - [10] {R_4} {_}
+13 line d -
+17 C l - [2] {C_3} {_}

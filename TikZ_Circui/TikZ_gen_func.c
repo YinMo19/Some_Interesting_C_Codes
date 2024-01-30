@@ -50,7 +50,10 @@ void write_file_head(char *filename) {
                 "\\usepackage[siunitx]{circuitikz}\n"
                 "\\begin{document}\n"
                 "\\begin{tikzpicture}[scale=2]\n"
-                "	\\draw[color=black]\n");
+                // "	\\draw[color=black]\n");
+                // if you think it's not so thick,uncomment this
+                //  and comment the upper line
+                "	\\draw[color=black,thick]\n");
     fclose(fp);
 }
 
@@ -117,7 +120,7 @@ void read_file(char *filename) {
             if (tmp == '\n') {
                 goto _set_;
             }
-            if (tmp == '{') {
+            if (tmp == ' ') {
                 fscanf(fp, "%*c%c%*c", &circuits[status].desc_dir);
             }
         }
@@ -144,15 +147,6 @@ void calc_address(tree *root) {
     while (branch_cnt < root->branch) {
         for (int i = 0; i < 4; i++) {
             if (circuits[root->next[branch_cnt]->status].direction == dir[i]) {
-                if (circuits[root->next[branch_cnt]->status].end != 0) {
-                    circuits[root->next[branch_cnt]->status].address.x =
-                        circuits[circuits[root->next[branch_cnt]->status].end]
-                            .address.x;
-                    circuits[root->next[branch_cnt]->status].address.y =
-                        circuits[circuits[root->next[branch_cnt]->status].end]
-                            .address.y;
-                            continue;
-                }
                 circuits[root->next[branch_cnt]->status].address.x =
                     circuits[root->status].address.x + dx[i];
                 circuits[root->next[branch_cnt]->status].address.y =
@@ -162,6 +156,30 @@ void calc_address(tree *root) {
 
         // calc the next branch
         calc_address(root->next[branch_cnt]);
+        branch_cnt++;
+    }
+}
+
+/**
+ * @brief calc the ones which have end
+ *
+ * @param root
+ */
+void calc_address_end(tree *root) {
+
+    int branch_cnt = 0;
+    while (branch_cnt < root->branch) {
+        if (circuits[root->next[branch_cnt]->status].end != 0) {
+            circuits[root->next[branch_cnt]->status].address.x =
+                circuits[circuits[root->next[branch_cnt]->status].end]
+                    .address.x;
+            circuits[root->next[branch_cnt]->status].address.y =
+                circuits[circuits[root->next[branch_cnt]->status].end]
+                    .address.y;
+        }
+
+        // calc the next branch
+        calc_address_end(root->next[branch_cnt]);
         branch_cnt++;
     }
 }
@@ -216,7 +234,7 @@ void print_content(char *filename) {
 
     // set the status counter
     int status_cnt = 1;
-    while (status_cnt < line_cnt -1) {
+    while (status_cnt < line_cnt - 1) {
         // if is ground
         if (strcmp(circuits[status_cnt].name, "gnd") == 0) {
             fprintf(fp, "\t(%d,%d) node[ground]{}\n",

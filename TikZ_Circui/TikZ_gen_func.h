@@ -49,6 +49,7 @@ void           write_file_head(char *filename);
 void           write_file_end(char *filename);
 void           read_file(char *filename);
 void           calc_address(tree *root);
+void           calc_address_end(tree *root);
 void           print_content(char *filename);
 void           determine_tree_structure(tree *root, int status);
 
