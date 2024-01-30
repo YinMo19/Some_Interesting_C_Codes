@@ -96,6 +96,10 @@ gcc TikZ_gen.c TikZ_gen_func.c -o TikZ_gen
 - vR 变阻电阻
 - gnd 接地
 - bat 电池
+- iso 电流源
+- pbu 电源
+- fld 实心发光二极管
+- lamp 灯泡
 ```
 
 ---

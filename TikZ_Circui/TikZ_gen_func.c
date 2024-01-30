@@ -271,15 +271,21 @@ void print_content(char *filename) {
         char name[100] = {0};
         if (strcmp(circuits[status_cnt].name, "bat") == 0) {
             strcpy(name, "battery2");
+        } else if (strcmp(circuits[status_cnt].name, "iso") == 0) {
+            strcpy(name, "isource");
+        } else if (strcmp(circuits[status_cnt].name, "pbu") == 0) {
+            strcpy(name, "push button");
+        } else if (strcmp(circuits[status_cnt].name, "fld") == 0) {
+            strcpy(name, "full led");
         } else {
             strcpy(name, circuits[status_cnt].name);
         }
-        
+
         fprintf(fp, "\t(%d,%d) to [%s, %s %s] (%d,%d)\n",
                 circuits[circuits[status_cnt].start].address.x,
-                circuits[circuits[status_cnt].start].address.y,
-                name, tmp, circuits[status_cnt].line_shape,
-                circuits[status_cnt].address.x, circuits[status_cnt].address.y);
+                circuits[circuits[status_cnt].start].address.y, name, tmp,
+                circuits[status_cnt].line_shape, circuits[status_cnt].address.x,
+                circuits[status_cnt].address.y);
         status_cnt++;
     }
 
