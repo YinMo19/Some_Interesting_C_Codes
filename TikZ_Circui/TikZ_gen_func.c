@@ -267,10 +267,18 @@ void print_content(char *filename) {
             strcat(tmp, circuits[status_cnt].description);
             strcat(tmp, "$,");
         }
+
+        char name[100] = {0};
+        if (strcmp(circuits[status_cnt].name, "bat") == 0) {
+            strcpy(name, "battery2");
+        } else {
+            strcpy(name, circuits[status_cnt].name);
+        }
+        
         fprintf(fp, "\t(%d,%d) to [%s, %s %s] (%d,%d)\n",
                 circuits[circuits[status_cnt].start].address.x,
                 circuits[circuits[status_cnt].start].address.y,
-                circuits[status_cnt].name, tmp, circuits[status_cnt].line_shape,
+                name, tmp, circuits[status_cnt].line_shape,
                 circuits[status_cnt].address.x, circuits[status_cnt].address.y);
         status_cnt++;
     }
