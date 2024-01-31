@@ -9,6 +9,7 @@
  *
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,8 @@ typedef struct circuit {
     char  line_shape[4];
     point address;
     int   end;
+    bool  is_multi;
+    char  anchor[10];
 } circuit;
 
 // define a tree to calc the distance

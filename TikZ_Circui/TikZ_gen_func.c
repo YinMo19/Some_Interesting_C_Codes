@@ -10,6 +10,8 @@
  */
 
 #include "TikZ_gen_func.h"
+#include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
 
 // define a movement and a direction array
@@ -50,10 +52,10 @@ void write_file_head(char *filename) {
                 "\\usepackage[siunitx]{circuitikz}\n"
                 "\\begin{document}\n"
                 "\\begin{tikzpicture}[scale=2]\n"
-                // "	\\draw[color=black]\n");
-                // if you think it's not so thick,uncomment this
-                //  and comment the upper line
-                "	\\draw[color=black,thick]\n");
+                "	\\draw[color=black]\n");
+    // if you think it's not so thick,uncomment this
+    //  and comment the upper line
+    // "	\\draw[color=black,thick]\n");
     fclose(fp);
 }
 
@@ -88,45 +90,55 @@ void read_file(char *filename) {
 
     // when not the end of the file
     while (!feof(fp)) {
+        do {
 
-        // read the data by special format
-        fscanf(fp, "%d%*c", &circuits[status].start);
-        fscanf(fp, "%s%*c", circuits[status].name);
-        if (strcmp(circuits[status].name, "gnd") == 0) {
-            goto _set_;
-        }
-        fscanf(fp, "%c%*c", &circuits[status].direction);
-        fscanf(fp, "%s", circuits[status].line_shape);
+            // read the data by special format
+            fscanf(fp, "%d%*c", &circuits[status].start);
+            fscanf(fp, "%s%*c", circuits[status].name);
 
-        char tmp = (char) fgetc(fp);
-        if (tmp == '\n') {
-            goto _set_;
-        }
+            // if is ground or tri-state
+            if (strcmp(circuits[status].name, "gnd") == 0) {
+                break;
+            } else if (strcmp(circuits[status].name, "opa") == 0) {
+                circuits[status].is_multi = true;
+            }
 
-        // the part can be chosen
-        tmp = (char) fgetc(fp);
-        if (tmp == '[') {
-            fscanf(fp, "%d%*c", &circuits[status].end);
-            tmp = (char) fgetc(fp);
+            if (circuits[status].is_multi ||) {
+                fscanf(fp, "%s", circuits[status].anchor);
+            }
+
+            fscanf(fp, "%c%*c", &circuits[status].direction);
+            fscanf(fp, "%s", circuits[status].line_shape);
+
+            char tmp = (char) fgetc(fp);
             if (tmp == '\n') {
-                goto _set_;
-            } else if (tmp == ' ') {
+                break;
+            }
+
+            // the part can be chosen
+            tmp = (char) fgetc(fp);
+            if (tmp == '[') {
+                fscanf(fp, "%d%*c", &circuits[status].end);
                 tmp = (char) fgetc(fp);
+                if (tmp == '\n') {
+                    break;
+                } else if (tmp == ' ') {
+                    tmp = (char) fgetc(fp);
+                }
             }
-        }
-        if (tmp == '{') {
-            fscanf(fp, "%[^}]%*c", circuits[status].description);
-            tmp = (char) fgetc(fp);
-            if (tmp == '\n') {
-                goto _set_;
+            if (tmp == '{') {
+                fscanf(fp, "%[^}]%*c", circuits[status].description);
+                tmp = (char) fgetc(fp);
+                if (tmp == '\n') {
+                    break;
+                }
+                if (tmp == ' ') {
+                    fscanf(fp, "%*c%c%*c", &circuits[status].desc_dir);
+                }
             }
-            if (tmp == ' ') {
-                fscanf(fp, "%*c%c%*c", &circuits[status].desc_dir);
-            }
-        }
+        } while (0);
 
-    // set the status
-    _set_:
+        // set the status
         circuits[status].status = status;
         status++;
     }
@@ -268,6 +280,7 @@ void print_content(char *filename) {
             strcat(tmp, "$,");
         }
 
+        // Judge the name,and replace it.
         char name[100] = {0};
         if (strcmp(circuits[status_cnt].name, "bat") == 0) {
             strcpy(name, "battery2");
