@@ -17,23 +17,18 @@
 #ifndef __TikZ_gen_func__
 #define __TikZ_gen_func__
 
-// define a basic struct
-typedef struct point {
-    int x, y;
-} point;
-
 typedef struct circuit {
-    int   start;
-    char  name[10];
-    char  direction;
-    char  description[100];
-    char  desc_dir;
-    int   status;
-    char  line_shape[4];
-    point address;
-    int   end;
-    bool  is_multi;
-    char  anchor[10];
+    int  start;
+    char name[10];
+    char direction;
+    char description[100];
+    char desc_dir;
+    int  status;
+    char line_shape[4];
+    int  end;
+    bool is_multi;
+    char anchor[10];
+    char next_anchor[10];
 } circuit;
 
 // define a tree to calc the distance
@@ -51,9 +46,7 @@ void           kill_file(char *filename);
 void           write_file_head(char *filename);
 void           write_file_end(char *filename);
 void           read_file(char *filename);
-void           calc_address(tree *root);
-void           calc_address_end(tree *root);
+int            dirt(char direction);
 void           print_content(char *filename);
-void           determine_tree_structure(tree *root, int status);
 
 #endif

@@ -2,7 +2,7 @@
  * @file TikZ_gen_func.c
  * @author YinMo19 (YinMo19@proton.me)
  * @brief functions in TikZ-generator
- * @version 0.1
+ * @version 1.0
  * @date 2024-01-29
  *
  * @copyright Copyright (c) 2024
@@ -74,6 +74,8 @@ void write_file_end(char *filename) {
 
 /**
  * @brief read the descriptions and write the curcuit array
+ * @details This function is aimed to read the description.txt and
+ *          get the information by special format
  *
  * @param filename
  */
@@ -103,39 +105,54 @@ void read_file(char *filename) {
                 circuits[status].is_multi = true;
             }
 
-            if (circuits[status].is_multi ||) {
-                fscanf(fp, "%s", circuits[status].anchor);
+            // if is_multi or the start point is_multi,
+            // it needs to input an anchor.
+            if (circuits[status].is_multi ||
+                circuits[circuits[status].start].is_multi) {
+                fscanf(fp, "%s%*c", circuits[status].anchor);
+                if (circuits[status].is_multi &&
+                    circuits[circuits[status].start].is_multi) {
+                    fscanf(fp, "%s%*c", circuits[status].next_anchor);
+                }
             }
 
-            fscanf(fp, "%c%*c", &circuits[status].direction);
-            fscanf(fp, "%s", circuits[status].line_shape);
+            // the tri-state point' input should be different
+            if (circuits[status].is_multi) {
+                fscanf(fp, "%*c%[^}]%*c", circuits[status].description);
+            } else {
 
-            char tmp = (char) fgetc(fp);
-            if (tmp == '\n') {
-                break;
-            }
+                // the normal input
+                fscanf(fp, "%c%*c", &circuits[status].direction);
+                fscanf(fp, "%s", circuits[status].line_shape);
 
-            // the part can be chosen
-            tmp = (char) fgetc(fp);
-            if (tmp == '[') {
-                fscanf(fp, "%d%*c", &circuits[status].end);
-                tmp = (char) fgetc(fp);
+                char tmp = (char) fgetc(fp);
                 if (tmp == '\n') {
                     break;
-                } else if (tmp == ' ') {
+                }
+
+                // the part can be chosen
+                tmp = (char) fgetc(fp);
+                if (tmp == '[') {
+                    fscanf(fp, "%d%*c", &circuits[status].end);
                     tmp = (char) fgetc(fp);
+                    if (tmp == '\n') {
+                        break;
+                    } else if (tmp == ' ') {
+                        tmp = (char) fgetc(fp);
+                    }
+                }
+                if (tmp == '{') {
+                    fscanf(fp, "%[^}]%*c", circuits[status].description);
+                    tmp = (char) fgetc(fp);
+                    if (tmp == '\n') {
+                        break;
+                    }
+                    if (tmp == ' ') {
+                        fscanf(fp, "%*c%c%*c", &circuits[status].desc_dir);
+                    }
                 }
             }
-            if (tmp == '{') {
-                fscanf(fp, "%[^}]%*c", circuits[status].description);
-                tmp = (char) fgetc(fp);
-                if (tmp == '\n') {
-                    break;
-                }
-                if (tmp == ' ') {
-                    fscanf(fp, "%*c%c%*c", &circuits[status].desc_dir);
-                }
-            }
+
         } while (0);
 
         // set the status
@@ -148,88 +165,18 @@ void read_file(char *filename) {
 }
 
 /**
- * @brief calculate the address by tree structure
+ * @brief get the direction int for getting dir array
  *
- * @param circuits
+ * @param direction
+ * @return int
  */
-void calc_address(tree *root) {
-
-    // calculate the address
-    int branch_cnt = 0;
-    while (branch_cnt < root->branch) {
-        for (int i = 0; i < 4; i++) {
-            if (circuits[root->next[branch_cnt]->status].direction == dir[i]) {
-                circuits[root->next[branch_cnt]->status].address.x =
-                    circuits[root->status].address.x + dx[i];
-                circuits[root->next[branch_cnt]->status].address.y =
-                    circuits[root->status].address.y + dy[i];
-            }
-        }
-
-        // calc the next branch
-        calc_address(root->next[branch_cnt]);
-        branch_cnt++;
-    }
-}
-
-/**
- * @brief calc the ones which have end
- *
- * @param root
- */
-void calc_address_end(tree *root) {
-
-    int branch_cnt = 0;
-    while (branch_cnt < root->branch) {
-        if (circuits[root->next[branch_cnt]->status].end != 0) {
-            circuits[root->next[branch_cnt]->status].address.x =
-                circuits[circuits[root->next[branch_cnt]->status].end]
-                    .address.x;
-            circuits[root->next[branch_cnt]->status].address.y =
-                circuits[circuits[root->next[branch_cnt]->status].end]
-                    .address.y;
-        }
-
-        // calc the next branch
-        calc_address_end(root->next[branch_cnt]);
-        branch_cnt++;
-    }
-}
-
-/**
- * @brief determine the tree structure
- *
- * @param root
- */
-void determine_tree_structure(tree *root, int status) {
-
-    // do some error checking
-    if (root == NULL) {
-        panic("root is NULL");
-    }
-
-    // set the root status
-    root->status = circuits[status].status;
-
-    // determine the next branch
-    int branch_cnt = 0;
-    for (int i = 0; i < line_cnt; i++) {
-
-        // skip when root is counting
-        if (i == root->status) {
-            continue;
-        }
-
-        // search the next branch
-        if (circuits[i].start == root->status) {
-            root->next[branch_cnt] = (tree *) malloc(sizeof(tree));
-            determine_tree_structure(root->next[branch_cnt], i);
-            branch_cnt++;
+int dirt(char direction) {
+    for (int i = 0; i < 4; i++) {
+        if (dir[i] == direction) {
+            return i;
         }
     }
-
-    // set the branch number
-    root->branch = branch_cnt;
+    return -1;
 }
 
 /**
@@ -244,26 +191,16 @@ void print_content(char *filename) {
         panic("Can't open file.");
     }
 
+    // set the start point
+    fprintf(fp, "\t(0,0) coordinate (0)\n");
+
     // set the status counter
     int status_cnt = 1;
     while (status_cnt < line_cnt - 1) {
         // if is ground
         if (strcmp(circuits[status_cnt].name, "gnd") == 0) {
-            fprintf(fp, "\t(%d,%d) node[ground]{}\n",
-                    circuits[circuits[status_cnt].start].address.x,
-                    circuits[circuits[status_cnt].start].address.y);
-            status_cnt++;
-            continue;
-        }
-
-        // if is line
-        if (strcmp(circuits[status_cnt].name, "line") == 0) {
-            fprintf(fp, "\t(%d,%d) to [short,%s] (%d,%d)\n",
-                    circuits[circuits[status_cnt].start].address.x,
-                    circuits[circuits[status_cnt].start].address.y,
-                    circuits[status_cnt].line_shape,
-                    circuits[status_cnt].address.x,
-                    circuits[status_cnt].address.y);
+            fprintf(fp, "\t(%d) node[ground]{}\n",
+                    circuits[circuits[status_cnt].start].status);
             status_cnt++;
             continue;
         }
@@ -290,15 +227,53 @@ void print_content(char *filename) {
             strcpy(name, "push button");
         } else if (strcmp(circuits[status_cnt].name, "fld") == 0) {
             strcpy(name, "full led");
+        } else if (strcmp(circuits[status_cnt].name, "opa") == 0) {
+            strcpy(name, "op amp");
+        } else if (strcmp(circuits[status_cnt].name, "line") == 0) {
+            strcpy(name, "short");
         } else {
             strcpy(name, circuits[status_cnt].name);
         }
 
-        fprintf(fp, "\t(%d,%d) to [%s, %s %s] (%d,%d)\n",
-                circuits[circuits[status_cnt].start].address.x,
-                circuits[circuits[status_cnt].start].address.y, name, tmp,
-                circuits[status_cnt].line_shape, circuits[status_cnt].address.x,
-                circuits[status_cnt].address.y);
+        if (circuits[status_cnt].is_multi &&
+            circuits[circuits[status_cnt].start].is_multi) {
+            fprintf(fp,
+                    "\t(%s.%s) node[%s, noinv input up, "
+                    "anchor=%s](%s){\\texttt{%s}}\n",
+                    circuits[circuits[status_cnt].start].description,
+                    circuits[status_cnt].anchor, name,
+                    circuits[status_cnt].next_anchor,
+                    circuits[status_cnt].description,
+                    circuits[status_cnt].description);
+        } else if (circuits[status_cnt].is_multi) {
+            fprintf(fp,
+                    "\t(%d) node[%s, noinv input up, "
+                    "anchor=%s](%s){\\texttt{%s}}\n",
+                    circuits[circuits[status_cnt].start].status, name,
+                    circuits[status_cnt].anchor,
+                    circuits[status_cnt].description,
+                    circuits[status_cnt].description);
+        } else if (circuits[circuits[status_cnt].start].is_multi) {
+            fprintf(fp, "\t(%s.%s) to[%s,%s] ++ (%d,%d) coordinate(%d)\n",
+                    circuits[circuits[status_cnt].start].description,
+                    circuits[status_cnt].anchor, name,
+                    circuits[status_cnt].line_shape,
+                    dx[dirt(circuits[status_cnt].direction)],
+                    dy[dirt(circuits[status_cnt].direction)],
+                    circuits[status_cnt].status);
+        } else if (circuits[status_cnt].end != 0) {
+            fprintf(fp, "\t(%d) to [%s, %s %s] (%d)\n",
+                    circuits[circuits[status_cnt].start].status, name, tmp,
+                    circuits[status_cnt].line_shape,
+                    circuits[circuits[status_cnt].end].status);
+        } else {
+            fprintf(fp, "\t(%d) to [%s, %s %s] ++ (%d,%d) coordinate (%d)\n",
+                    circuits[circuits[status_cnt].start].status, name, tmp,
+                    circuits[status_cnt].line_shape,
+                    dx[dirt(circuits[status_cnt].direction)],
+                    dy[dirt(circuits[status_cnt].direction)],
+                    circuits[status_cnt].status);
+        }
         status_cnt++;
     }
 
