@@ -256,7 +256,8 @@ void print_content(char *filename) {
         } else if (circuits[circuits[status_cnt].start].is_multi) {
             fprintf(fp, "\t(%s.%s) to[%s,%s] ++ (%d,%d) coordinate(%d)\n",
                     circuits[circuits[status_cnt].start].description,
-                    circuits[status_cnt].anchor, name,
+                    circuits[status_cnt].anchor,
+                    name,
                     circuits[status_cnt].line_shape,
                     dx[dirt(circuits[status_cnt].direction)],
                     dy[dirt(circuits[status_cnt].direction)],
