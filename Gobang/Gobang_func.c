@@ -104,6 +104,13 @@ alphabeta calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
 /**
  * @brief 计算玩家或者AI的的成绩
  *
+ * @details 计分的评判机制
+ *          1.活四即已经胜利，这种局面和胜利相同
+ *          2.被堵一侧的四和活三相同，即同样是_whole_three_的分数
+ *          3.所有两侧都被堵的均记为0分，即无效
+ *          4.双三（没有被堵）即胜利，而被堵一处则可以进行两次冲四，记4000分
+ *          5.双四（被堵两处）即胜利
+ *
  * @param board
  * @param role 0或者1，表示AI或者玩家
  * @return size_t 返回role对应的成绩

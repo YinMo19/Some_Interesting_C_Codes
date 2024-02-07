@@ -25,11 +25,14 @@
 #define MAX_SIZE 15
 
 // 定义棋盘的局势
+#define _useless_ 0
 #define _whole_one_ 1
 #define _whole_two_ 10
-#define _whole_three_ 100
-#define _whole_four_ 10000
-#define _whole_five_ 1000000
+#define _whole_three_ 1000
+#define _one_double_three_ 4000
+#define _two_double_three_ 2000
+#define _whole_four_ 1000000
+#define _five_ 1000000
 
 #define _INFINITY_ 1000000000
 
