@@ -16,6 +16,7 @@ point  player_choose;
 point  AI_choose;
 size_t player_total_score = 0;
 size_t AI_total_score     = 0;
+bool   is_win             = false;
 
 int main(int argc, char const *argv[]) {
 
@@ -35,12 +36,24 @@ int main(int argc, char const *argv[]) {
 
         alphabeta best       = {-_INFINITY_, _INFINITY_};
         point     best_point = {0, 0};
-        calc_next(board, 3, best, 1, &best_point);
+        // calc_next(board, 3, best, 1, &best_point);
         board[best_point.x][best_point.y] = _AI_Occupied_;
 
+        if (calc_total_score(board, 1) >= _five_) {
+            system("clear");
+            print_board(board);
+            is_win = true;
+            break;
+        }
+
+        if (calc_total_score(board, 0) >= _five_) {
+            system("clear");
+            print_board(board);
+            break;
+        }
         system("clear");
     }
 
-    printf("Hello World!\n");
+    printf("%s win!\n", is_win ? "AI" : "Player");
     return 0;
 }

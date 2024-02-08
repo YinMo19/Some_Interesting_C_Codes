@@ -23,14 +23,14 @@
 #define _AI_Occupied_ 88
 #define _Player_Occupied_ 79
 #define _marked_ 10
-#define MAX_SIZE 15
+#define MAX_SIZE 9
 
 // 定义棋盘的局势
 #define _whole_two_ 10
-#define _whole_three_ 1000
-#define _two_double_three_ 10000
-#define _whole_four_ 100000
-#define _five_ 1000000
+#define _whole_three_ 100
+#define _two_double_three_ 1000
+#define _whole_four_ 50000
+#define _five_ 10000000
 
 #define _INFINITY_ 1000000000
 

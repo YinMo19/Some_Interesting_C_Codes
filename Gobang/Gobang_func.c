@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // 移动方向
 static const int dx[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
@@ -141,7 +142,7 @@ size_t calc_total_score(const char board[MAX_SIZE][MAX_SIZE], const int role) {
     } else {
         __score__(_Player_Occupied_);
     }
-    return 0;
+    return sum;
 }
 
 /**
@@ -290,7 +291,9 @@ bool is_full(const char board[MAX_SIZE][MAX_SIZE]) {
 size_t find_score(const char board[MAX_SIZE][MAX_SIZE], const size_t dir,
                   const size_t i, const size_t j, const int role) {
     char line[10] = {0};
+    memset(line, ' ', 10);
 
+    // 把特定方向上的点拿出来，将空白设为0，与role对应的设为1，对方则是0.
     for (int k = -4; k < 5; k++) {
         if (i + k * dx[dir] < 0 || i + k * dx[dir] >= MAX_SIZE ||
             j + k * dy[dir] < 0 || j + k * dy[dir] >= MAX_SIZE) {
@@ -298,11 +301,12 @@ size_t find_score(const char board[MAX_SIZE][MAX_SIZE], const size_t dir,
         }
         line[5 + k] = (board[i + k * dx[dir]][j + k * dy[dir]] == 0)
                           ? ' '
-                          : ((board[i + k * dx[dir]][j + k * dy[dir]] ==
-                              _Player_Occupied_) ^
-                             role) +
-                                '0';
+                          : (board[i + k * dx[dir]][j + k * dy[dir]] ==
+                             _Player_Occupied_) ^
+                                role + '0';
     }
+
+    // 将其与之前设置的各种棋局进行比较
     if (strstr(line, live_five) != NULL) {
         return _five_;
     } else if (strstr(line, live_five) != NULL) {
