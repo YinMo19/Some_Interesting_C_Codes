@@ -29,3 +29,7 @@ TikZ_Circui/TikZ_Circuit.tex
 TikZ_Circui/.vscode
 
 Gobang/Gobang
+Gobang/.vscode/launch.json
+Gobang/test.c
+Gobang/test
+

@@ -18,16 +18,27 @@
 static const int dx[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
 static const int dy[8] = {-1, 0, 1, -1, 1, -1, 0, 1};
 
-/**
- * @brief 打印错误信息
- *
- * @param msg
- * @return _Noreturn
- */
-inline _Noreturn void panic(const char msg[]) {
-    printf("%s\n", msg);
-    exit(1);
-}
+// 棋局判定
+static const char live_five[]      = "11111";
+static const char live_four[]      = " 1111 ";
+static const char dead_four_A1[]   = " 1111";
+static const char dead_four_A2[]   = "1111 ";
+static const char dead_four_B1[]   = "111 1";
+static const char dead_four_B2[]   = "1 111";
+static const char dead_four_C[]    = "11 11";
+static const char live_three[]     = " 111 ";
+static const char dead_three_A_1[] = "111  ";
+static const char dead_three_A_2[] = "  111";
+static const char dead_three_B_1[] = " 1 11 ";
+static const char dead_three_B_2[] = " 11 1 ";
+static const char dead_three_C_1[] = "1  11";
+static const char dead_three_C_2[] = "11  1";
+static const char dead_three_D[]   = "1 1 1";
+static const char live_two[]       = "   11   ";
+static const char dead_two_A_1[]   = "   11";
+static const char dead_two_A_2[]   = "11   ";
+static const char dead_two_B[]     = "  1 1  ";
+static const char dead_two_C[]     = " 1  1 ";
 
 /**
  * @brief 将棋盘打印出来
@@ -63,12 +74,13 @@ void print_board(const char board[MAX_SIZE][MAX_SIZE]) {
  * @return alphabeta 函数的返回值是alpha-beta剪枝搜索所得到的alpha-beta值
  */
 alphabeta calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
-                    alphabeta best, const int role, point *const best_point) {
+                    alphabeta best, const int role,
+                    point *const restrict best_point) {
 
     // 如果迭代深度为0，(即此时达到迭代的底层)则计算此时的局势
     // 局势的计算方式为role代表方的总分减去role的对方的总分
     // 这样的到的局势值就是alpha-beta剪枝搜索的最底层alpha or beta值
-    if (deepth == 0) {
+    if (deepth == 1) {
         if (role == 1) {
             best.beta = (ssize_t) calc_total_score(board, role) -
                         (ssize_t) calc_total_score(board, role ^ 1);
@@ -80,14 +92,14 @@ alphabeta calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
         return best;
     }
 
-    // 初始化next为空指针。
+    // 初始化next的x值为-1。
     // 需要注意的点：我们的best每次循环都会修改，所以需要一个临时变量
     // 一旦发现这个分支是不合理的，我们就会用best重新赋值给
     // tmp_best，这样就可以保证alpha-beta剪枝是正确的
-    point *next        = malloc(sizeof(point));
-    next               = (point *) NULL;
-    alphabeta tmp_best = best;
-    point     tmp_best_point;
+    point *next              = malloc(sizeof(point));
+    next->x                  = -1;
+    alphabeta tmp_best       = best;
+    point    *tmp_best_point = malloc(sizeof(point));
 
     // 可复用的类函数宏__alpha_beta_cutting__
     // 被定义在Gobang_func.h中
@@ -97,7 +109,13 @@ alphabeta calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
         __alpha_beta_cutting__(alpha, beta, >);
     }
 
+    // 给搜索到的最优策略赋值
+    best_point->x = tmp_best_point->x;
+    best_point->y = tmp_best_point->y;
+
+    // 释放next、tmp_best_point指针，返回alpha-beta剪枝搜索的alpha-beta值
     free(next);
+    free(tmp_best_point);
     return tmp_best;
 }
 
@@ -116,7 +134,13 @@ alphabeta calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
  * @return size_t 返回role对应的成绩
  */
 size_t calc_total_score(const char board[MAX_SIZE][MAX_SIZE], const int role) {
-    
+    size_t sum = 0;
+
+    if (role == 1) {
+        __score__(_AI_Occupied_);
+    } else {
+        __score__(_Player_Occupied_);
+    }
     return 0;
 }
 
@@ -136,7 +160,7 @@ void choose_next_point(const char board[MAX_SIZE][MAX_SIZE], const int role,
 
     // 如果传入指针为空指针，那么意味着这是第一次调用
     // 寻找密度最大的点作为起始点
-    if (next == NULL) {
+    if (next->x == -1) {
         copy_start_board(board, tmp_start_board);
         max_density_point(board, next);
         tmp_start_board[next->x][next->y] = _marked_;
@@ -157,10 +181,12 @@ void choose_next_point(const char board[MAX_SIZE][MAX_SIZE], const int role,
             tmp_next.y >= MAX_SIZE) {
             continue;
         }
+
+        // 此时的next点可能是不可选择的不会让数组越界的点
+        next->x = tmp_next.x;
+        next->y = tmp_next.y;
         if (tmp_start_board[tmp_next.x][tmp_next.y] == 0) {
             tmp_start_board[tmp_next.x][tmp_next.y] = _marked_;
-            next->x                                 = tmp_next.x;
-            next->y                                 = tmp_next.y;
             return;
         }
     }
@@ -248,4 +274,60 @@ bool is_full(const char board[MAX_SIZE][MAX_SIZE]) {
         }
     }
     return true;
+}
+
+/**
+ * @brief 从一个点向四周寻找，返回分数。
+ *
+ * @details 提前定义好各种情况，然后使用strstr寻炸是否存在子串。
+ *
+ * @param board
+ * @param dir
+ * @param i
+ * @param j
+ * @param role
+ */
+size_t find_score(const char board[MAX_SIZE][MAX_SIZE], const size_t dir,
+                  const size_t i, const size_t j, const int role) {
+    char line[10] = {0};
+
+    for (int k = -4; k < 5; k++) {
+        if (i + k * dx[dir] < 0 || i + k * dx[dir] >= MAX_SIZE ||
+            j + k * dy[dir] < 0 || j + k * dy[dir] >= MAX_SIZE) {
+            continue;
+        }
+        line[5 + k] = (board[i + k * dx[dir]][j + k * dy[dir]] == 0)
+                          ? ' '
+                          : ((board[i + k * dx[dir]][j + k * dy[dir]] ==
+                              _Player_Occupied_) ^
+                             role) +
+                                '0';
+    }
+    if (strstr(line, live_five) != NULL) {
+        return _five_;
+    } else if (strstr(line, live_five) != NULL) {
+        return _whole_four_;
+    } else if (strstr(line, dead_four_A1) != NULL ||
+               strstr(line, dead_four_A2) != NULL ||
+               strstr(line, dead_four_B1) != NULL ||
+               strstr(line, dead_four_B2) != NULL ||
+               strstr(line, dead_four_C) != NULL ||
+               strstr(line, live_three) != NULL) {
+        return _two_double_three_;
+    } else if (strstr(line, dead_three_A_1) != NULL ||
+               strstr(line, dead_three_A_2) != NULL ||
+               strstr(line, dead_three_B_1) != NULL ||
+               strstr(line, dead_three_B_2) != NULL ||
+               strstr(line, dead_three_C_1) != NULL ||
+               strstr(line, dead_three_C_2) != NULL ||
+               strstr(line, dead_three_D) != NULL ||
+               strstr(line, live_two) != NULL) {
+        return _whole_three_;
+    } else if (strstr(line, dead_two_A_1) != NULL ||
+               strstr(line, dead_two_A_2) != NULL ||
+               strstr(line, dead_two_B) != NULL ||
+               strstr(line, dead_two_C) != NULL) {
+        return _whole_two_;
+    }
+    return 0;
 }

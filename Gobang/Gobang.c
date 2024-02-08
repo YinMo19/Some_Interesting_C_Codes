@@ -23,6 +23,7 @@ int main(int argc, char const *argv[]) {
 
     // initial board
     char board[MAX_SIZE][MAX_SIZE] = {0};
+    system("clear");
 
     printf("请输入回车以开始游戏。");
 
@@ -32,9 +33,10 @@ int main(int argc, char const *argv[]) {
                             player_choose.x, player_choose.y);
         board[player_choose.x - 1][player_choose.y - 1] = _Player_Occupied_;
 
-        alphabeta best = {-_INFINITY_, _INFINITY_};
-        point best_point = {0, 0};
+        alphabeta best       = {-_INFINITY_, _INFINITY_};
+        point     best_point = {0, 0};
         calc_next(board, 3, best, 1, &best_point);
+        board[best_point.x][best_point.y] = _AI_Occupied_;
 
         system("clear");
     }

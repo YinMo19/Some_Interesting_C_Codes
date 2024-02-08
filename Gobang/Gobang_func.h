@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #ifndef __Gobang_func_h__
@@ -25,13 +26,10 @@
 #define MAX_SIZE 15
 
 // 定义棋盘的局势
-#define _useless_ 0
-#define _whole_one_ 1
 #define _whole_two_ 10
 #define _whole_three_ 1000
-#define _one_double_three_ 4000
-#define _two_double_three_ 2000
-#define _whole_four_ 1000000
+#define _two_double_three_ 10000
+#define _whole_four_ 100000
 #define _five_ 1000000
 
 #define _INFINITY_ 1000000000
@@ -50,7 +48,7 @@
         print_board(board);                                                    \
         printf(prompt);                                                        \
     } while (scanf("%d%*c%d", &point_x, &point_y) != 2 || point_x < 1 ||       \
-             point_x > 19 || point_y < 1 || point_y > 19 ||                    \
+             point_x > MAX_SIZE || point_y < 1 || point_y > MAX_SIZE ||        \
              board[point_x - 1][point_y - 1] != 0);
 
 /**
@@ -72,17 +70,40 @@
                                                                                    \
         /*迭代下一步，并回溯已经落子的那一步*/                    \
         alphabeta next_best =                                                      \
-            calc_next(board, deepth - 1, tmp_best, role ^ 1, best_point);          \
+            calc_next(board, deepth - 1, tmp_best, role ^ 1, tmp_best_point);      \
         board[next->x][next->y] = 0;                                               \
                                                                                    \
         /* 判断是否可以剪枝，并且将已经找到的最好位置更新*/ \
         if (next_best.alpha compar tmp_best.beta) {                                \
-            tmp_best.beta = next_best.alpha;                                       \
+            if (tmp_best.alpha compar next_best.alpha) {                           \
+                tmp_best.beta     = next_best.alpha;                               \
+                tmp_best_point->x = next->x;                                       \
+                tmp_best_point->y = next->y;                                       \
+            }                                                                      \
         } else {                                                                   \
-            tmp_best.beta = best.beta;                                             \
+            tmp_best.beta     = best.beta;                                         \
+            tmp_best_point->x = best_point->x;                                     \
+            tmp_best_point->y = best_point->y;                                     \
             break;                                                                 \
         }                                                                          \
     } while (next->x != -1)
+
+/**
+ * @brief 计算当前局势的得分
+ *
+ */
+#define __score__(occupied)                                                    \
+    do {                                                                       \
+        for (size_t i = 0; i < MAX_SIZE; i++) {                                \
+            for (size_t j = 0; j < MAX_SIZE; j++) {                            \
+                if (board[i][j] == occupied) {                                 \
+                    for (size_t k = 0; k < 4; k++) {                           \
+                        sum += find_score(board, k, i, j, role);               \
+                    }                                                          \
+                }                                                              \
+            }                                                                  \
+        }                                                                      \
+    } while (0)
 
 typedef struct point {
     int x;
@@ -107,6 +128,7 @@ void   copy_start_board(const char board[MAX_SIZE][MAX_SIZE],
                         char       tmp_board[MAX_SIZE][MAX_SIZE]);
 void max_density_point(const char board[MAX_SIZE][MAX_SIZE], point *const next);
 bool is_full(const char board[MAX_SIZE][MAX_SIZE]);
-inline _Noreturn void panic(const char msg[]);
+size_t find_score(const char tmp_board[MAX_SIZE][MAX_SIZE], const size_t dir,
+                  const size_t i, const size_t j, const int role);
 
 #endif
