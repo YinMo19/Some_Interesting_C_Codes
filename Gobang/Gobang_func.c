@@ -2,7 +2,7 @@
  * @file Gobang.c
  * @author YinMo19 (YinMo19@proton.me)
  * @brief 实现五子棋游戏的函数
- * @version 0.1
+ * @version 0.2
  * @date 2024-02-07
  *
  * @copyright Copyright (c) 2024
@@ -38,8 +38,15 @@ static const char dead_three_D[]   = "1 1 1";
 static const char live_two[]       = "   11   ";
 static const char dead_two_A_1[]   = "   11";
 static const char dead_two_A_2[]   = "11   ";
-static const char dead_two_B[]     = "  1 1  ";
-static const char dead_two_C[]     = " 1  1 ";
+static const char dead_two_B_1[]   = "  1 1";
+static const char dead_two_B_2[]   = "1 1  ";
+static const char dead_two_C_1[]   = " 1  1";
+static const char dead_two_C_2[]   = "1  1 ";
+static const char live_one_A_1[]   = "1    ";
+static const char live_one_A_2[]   = " 1   ";
+static const char live_one_A_3[]   = "  1  ";
+static const char live_one_A_4[]   = "   1 ";
+static const char live_one_A_5[]   = "    1";
 
 /**
  * @brief 将棋盘打印出来
@@ -67,58 +74,84 @@ void print_board(const char board[MAX_SIZE][MAX_SIZE]) {
     printf("您的棋子为O，电脑的棋子为X,未落子的则为*\n");
 }
 
-/**
- * @brief 遍历每一个可能场景，计算最优策略
- *
- * @param board
- * @param deepth 迭代深度,初次传入时必须是奇数
- * @return alphabeta 函数的返回值是alpha-beta剪枝搜索所得到的alpha-beta值
- */
-alphabeta calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
-                    alphabeta best, const int role,
-                    point *const restrict best_point) {
+// /**
+//  * @brief 遍历每一个可能场景，计算最优策略
+//  *
+//  * @param board
+//  * @param deepth 迭代深度,初次传入时必须是奇数
+//  * @param best 从上往下传下的之前找到的最好情况
+//  * @param role 角色值，0为玩家，1为电脑
+//  * @param best_point 最佳落子点，每次返回给上一次调用
+//  * @return __Alp_or_Bet_t 返回alpha-beta剪枝搜索的alpha或者beta值
+//  */
+// __Alp_or_Bet_t calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
+//                          alphabeta best, const int role,
+//                          point *const restrict best_point) {
 
-    // 如果迭代深度为0，(即此时达到迭代的底层)则计算此时的局势
-    // 局势的计算方式为role代表方的总分减去role的对方的总分
-    // 这样的到的局势值就是alpha-beta剪枝搜索的最底层alpha or beta值
-    if (deepth == 1) {
-        if (role == 1) {
-            best.beta = (ssize_t) calc_total_score(board, role) -
-                        (ssize_t) calc_total_score(board, role ^ 1);
-        } else {
-            best.alpha = (ssize_t) calc_total_score(board, role) -
-                         (ssize_t) calc_total_score(board, role ^ 1);
-        }
+//     // 如果迭代深度为0，(即此时达到迭代的底层)则计算此时的局势
+//     // 局势的计算方式为role代表方的总分减去role的对方的总分
+//     // 这样的到的局势值就是alpha-beta剪枝搜索的最底层alpha or beta值
+//     if (deepth == 1) {
+//         return (ssize_t) calc_total_score(board, role) -
+//                (ssize_t) calc_total_score(board, role ^ 1);
+//     }
 
-        return best;
-    }
+//     // 初始化next的x值为-1。
+//     // 需要注意的点：我们的best每次循环都会修改，所以需要一个临时变量
+//     // 一旦发现这个分支是不合理的，我们就会用best重新赋值给
+//     // tmp_best，这样就可以保证alpha-beta剪枝是正确的
+//     point *next                                   = malloc(sizeof(point));
+//     next->x                                       = -1;
+//     alphabeta tmp_best                            = best;
+//     point    *tmp_best_point                      = malloc(sizeof(point));
+//     char      tmp_start_board[MAX_SIZE][MAX_SIZE] = {0};
+//     bool      first_time                          = true;
 
-    // 初始化next的x值为-1。
-    // 需要注意的点：我们的best每次循环都会修改，所以需要一个临时变量
-    // 一旦发现这个分支是不合理的，我们就会用best重新赋值给
-    // tmp_best，这样就可以保证alpha-beta剪枝是正确的
-    point *next              = malloc(sizeof(point));
-    next->x                  = -1;
-    alphabeta tmp_best       = best;
-    point    *tmp_best_point = malloc(sizeof(point));
+//     // 可复用的类函数宏__alpha_beta_cutting__
+//     // 被定义在Gobang_func.h中
+//     if (role == 1) {
+//         // __alpha_beta_cutting__(alpha, beta, <);
+//         do {
 
-    // 可复用的类函数宏__alpha_beta_cutting__
-    // 被定义在Gobang_func.h中
-    if (role == 1) {
-        __alpha_beta_cutting__(alpha, beta, <);
-    } else {
-        __alpha_beta_cutting__(alpha, beta, >);
-    }
+//             /* 选择合适的下一步，并将这一步设定为已经落子*/
+//             choose_next_point(board, role, next, tmp_start_board);
+//             board[next->x][next->y] =
+//                 (role == 0) ? _Player_Occupied_ : _AI_Occupied_;
 
-    // 给搜索到的最优策略赋值
-    best_point->x = tmp_best_point->x;
-    best_point->y = tmp_best_point->y;
+//             /*迭代下一步，并回溯已经落子的那一步*/
+//             alphabeta now_best = {-_INFINITY_, _INFINITY_};
+//             now_best.alpha = calc_next(board, deepth - 1, tmp_best, role ^ 1,
+//                                        tmp_best_point);
+//             board[next->x][next->y] = 0;
 
-    // 释放next、tmp_best_point指针，返回alpha-beta剪枝搜索的alpha-beta值
-    free(next);
-    free(tmp_best_point);
-    return tmp_best;
-}
+//             /* 判断是否可以剪枝，并且将已经找到的最好位置更新*/
+//             if (now_best.alpha < best.beta) {
+//                 if (now_best.alpha < tmp_best.alpha || first_time) {
+//                     tmp_best.alpha    = now_best.alpha;
+//                     tmp_best_point->x = next->x;
+//                     tmp_best_point->y = next->y;
+//                     first_time        = false;
+//                 }
+//             } else {
+//                 tmp_best.alpha    = best.beta;
+//                 tmp_best_point->x = best_point->x;
+//                 tmp_best_point->y = best_point->y;
+//                 break;
+//             }
+//         } while (next->x != -1);
+//     } else {
+//         __alpha_beta_cutting__(alpha, beta, >);
+//     }
+
+//     // 给搜索到的最优策略赋值
+//     best_point->x = tmp_best_point->x;
+//     best_point->y = tmp_best_point->y;
+
+//     // 释放next、tmp_best_point指针，返回alpha-beta剪枝搜索的alpha-beta值
+//     free(next);
+//     free(tmp_best_point);
+//     return (role == 1) ? tmp_best.alpha : tmp_best.beta;
+// }
 
 /**
  * @brief 计算玩家或者AI的的成绩
@@ -154,10 +187,8 @@ size_t calc_total_score(const char board[MAX_SIZE][MAX_SIZE], const int role) {
  * @return point
  */
 void choose_next_point(const char board[MAX_SIZE][MAX_SIZE], const int role,
-                       point *const restrict next) {
-
-    // 静态的棋盘，每次搜索之后标记位置。
-    static char tmp_start_board[MAX_SIZE][MAX_SIZE] = {0};
+                       point *const restrict next,
+                       char tmp_start_board[MAX_SIZE][MAX_SIZE]) {
 
     // 如果传入指针为空指针，那么意味着这是第一次调用
     // 寻找密度最大的点作为起始点
@@ -168,7 +199,7 @@ void choose_next_point(const char board[MAX_SIZE][MAX_SIZE], const int role,
         return;
     }
 
-    // 如果传入指针不为空指针，那么意味着这是第二次(及以上)调用
+    // 如果传入指针的x坐标值不为-1，那么意味着这是第二次(及以上)调用
     // 我们将临时的next设置为上一个next值（随机选择的）周围的点，
     // 如果那个点不是可以选择的（可能是数组越界或者已经被标记）
     // 则继续循环的20次寻找直到搜寻到一个可以选择的点。
@@ -194,17 +225,16 @@ void choose_next_point(const char board[MAX_SIZE][MAX_SIZE], const int role,
 
     //假如20次都没找到可以选择的点
     // 先判断是否已经搜索结束
-    if (is_full(board)) {
+    if (is_full(tmp_start_board)) {
         next->x = -1;
-    }
-
-    // 否则从头找到一个可以选择的点
-    else {
-        int address = 0;
+    } else {
+        // 否则从头找到一个可以选择的点
+        int address = -1;
         while (address++ < MAX_SIZE * MAX_SIZE) {
             if (tmp_start_board[address / MAX_SIZE][address % MAX_SIZE] == 0) {
-                next->x = address / MAX_SIZE;
-                next->y = address % MAX_SIZE;
+                next->x                           = address / MAX_SIZE;
+                next->y                           = address % MAX_SIZE;
+                tmp_start_board[next->x][next->y] = _marked_;
                 return;
             }
         }
@@ -329,9 +359,164 @@ size_t find_score(const char board[MAX_SIZE][MAX_SIZE], const size_t dir,
         return _whole_three_;
     } else if (strstr(line, dead_two_A_1) != NULL ||
                strstr(line, dead_two_A_2) != NULL ||
-               strstr(line, dead_two_B) != NULL ||
-               strstr(line, dead_two_C) != NULL) {
+               strstr(line, dead_two_B_1) != NULL ||
+               strstr(line, dead_two_B_2) != NULL ||
+               strstr(line, dead_two_C_1) != NULL ||
+               strstr(line, dead_two_C_1) != NULL ||
+               strstr(line, live_one_A_1) != NULL ||
+               strstr(line, live_one_A_2) != NULL ||
+               strstr(line, live_one_A_3) != NULL ||
+               strstr(line, live_one_A_4) != NULL ||
+               strstr(line, live_one_A_5) != NULL) {
         return _whole_two_;
     }
     return 0;
+}
+
+/**
+ * @brief 遍历每一个可能场景，计算最优策略
+ *
+ * @param board
+ * @param deepth 迭代深度,初次传入时必须是奇数
+ * @param best 从上往下传下的之前找到的最好情况
+ * @param role 角色值，0为玩家，1为电脑
+ * @param best_point 最佳落子点，每次返回给上一次调用
+ * @return __Alp_or_Bet_t 返回alpha-beta剪枝搜索的alpha或者beta值
+ */
+__Alp_or_Bet_t calc_next_debug(char board[MAX_SIZE][MAX_SIZE], const int deepth,
+                               alphabeta best, const int role,
+                               point *const restrict best_point) {
+
+    // 如果迭代深度为0，(即此时达到迭代的底层)则计算此时的局势
+    // 局势的计算方式为role代表方的总分减去role的对方的总分
+    // 这样的到的局势值就是alpha-beta剪枝搜索的最底层alpha or beta值
+    if (deepth == 1) {
+        return (ssize_t) calc_total_score(board, 1) -
+               (ssize_t) calc_total_score(board, 0);
+    }
+
+    // 初始化next的x值为-1。
+    // 需要注意的点：我们的best每次循环都会修改，所以需要一个临时变量
+    // 一旦发现这个分支是不合理的，我们就会用best重新赋值给
+    // tmp_best，这样就可以保证alpha-beta剪枝是正确的
+    point *next                                        = malloc(sizeof(point));
+    next->x                                            = -1;
+    alphabeta      tmp_best                            = best;
+    point         *tmp_best_point                      = malloc(sizeof(point));
+    char           tmp_start_board[MAX_SIZE][MAX_SIZE] = {0};
+    bool           first_time                          = true;
+    __Alp_or_Bet_t best_alpha                          = 0;
+    __Alp_or_Bet_t best_beta                           = 0;
+
+    // 可复用的类函数宏__alpha_beta_cutting__
+    // 被定义在Gobang_func.h中
+    if (role == 1) {
+        // __alpha_beta_cutting__(alpha, beta, <);
+        while (true) {
+
+            /* 选择合适的下一步，并将这一步设定为已经落子*/
+            choose_next_point(board, role, next, tmp_start_board);
+            if (next->x == -1) {
+                break;
+            }
+            board[next->x][next->y] =
+                (role == 0) ? _Player_Occupied_ : _AI_Occupied_;
+
+            __Alp_or_Bet_t alpha = calc_next_debug(board, deepth - 1, tmp_best,
+                                                   role ^ 1, tmp_best_point);
+            if (first_time) {
+                best_alpha        = alpha;
+                tmp_best_point->x = next->x;
+                tmp_best_point->y = next->y;
+                first_time        = false;
+            }
+
+            if (alpha > best_alpha) {
+                best_alpha        = alpha;
+                tmp_best_point->x = next->x;
+                tmp_best_point->y = next->y;
+            }
+
+            board[next->x][next->y] = 0;
+
+            // /*迭代下一步，并回溯已经落子的那一步*/
+            // alphabeta now_best = {-_INFINITY_, _INFINITY_};
+            // now_best.alpha = calc_next(board, deepth - 1, tmp_best, role ^ 1,
+            //                            tmp_best_point);
+            // board[next->x][next->y] = 0;
+
+            // /* 判断是否可以剪枝，并且将已经找到的最好位置更新*/
+            // if (now_best.alpha < best.beta) {
+            //     if (now_best.alpha < tmp_best.alpha || first_time) {
+            //         tmp_best.alpha    = now_best.alpha;
+            //         tmp_best_point->x = next->x;
+            //         tmp_best_point->y = next->y;
+            //         first_time        = false;
+            //     }
+            // } else {
+            //     tmp_best.alpha    = best.beta;
+            //     tmp_best_point->x = best_point->x;
+            //     tmp_best_point->y = best_point->y;
+            //     break;
+            // }
+        }
+    } else {
+        while (true) {
+
+            /* 选择合适的下一步，并将这一步设定为已经落子*/
+            choose_next_point(board, role, next, tmp_start_board);
+            if (next->x == -1) {
+                break;
+            }
+            board[next->x][next->y] =
+                (role == 0) ? _Player_Occupied_ : _AI_Occupied_;
+
+            __Alp_or_Bet_t beta = calc_next_debug(board, deepth - 1, tmp_best,
+                                                  role ^ 1, tmp_best_point);
+            if (first_time) {
+                best_beta         = beta;
+                tmp_best_point->x = next->x;
+                tmp_best_point->y = next->y;
+                first_time        = false;
+            }
+
+            if (beta < best_beta) {
+                best_beta         = beta;
+                tmp_best_point->x = next->x;
+                tmp_best_point->y = next->y;
+            }
+
+            board[next->x][next->y] = 0;
+
+            // /*迭代下一步，并回溯已经落子的那一步*/
+            // alphabeta now_best = {-_INFINITY_, _INFINITY_};
+            // now_best.alpha = calc_next(board, deepth - 1, tmp_best, role ^ 1,
+            //                            tmp_best_point);
+            // board[next->x][next->y] = 0;
+
+            // /* 判断是否可以剪枝，并且将已经找到的最好位置更新*/
+            // if (now_best.alpha < best.beta) {
+            //     if (now_best.alpha < tmp_best.alpha || first_time) {
+            //         tmp_best.alpha    = now_best.alpha;
+            //         tmp_best_point->x = next->x;
+            //         tmp_best_point->y = next->y;
+            //         first_time        = false;
+            //     }
+            // } else {
+            //     tmp_best.alpha    = best.beta;
+            //     tmp_best_point->x = best_point->x;
+            //     tmp_best_point->y = best_point->y;
+            //     break;
+            // }
+        }
+    }
+
+    // 给搜索到的最优策略赋值
+    best_point->x = tmp_best_point->x;
+    best_point->y = tmp_best_point->y;
+
+    // 释放next、tmp_best_point指针，返回alpha-beta剪枝搜索的alpha-beta值
+    free(next);
+    free(tmp_best_point);
+    return (role == 1) ? tmp_best.alpha : tmp_best.beta;
 }

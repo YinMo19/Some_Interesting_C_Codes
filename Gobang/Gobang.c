@@ -35,8 +35,8 @@ int main(int argc, char const *argv[]) {
         board[player_choose.x - 1][player_choose.y - 1] = _Player_Occupied_;
 
         alphabeta best       = {-_INFINITY_, _INFINITY_};
-        point     best_point = {0, 0};
-        // calc_next(board, 3, best, 1, &best_point);
+        point     best_point = {player_choose.x, player_choose.y};
+        calc_next_debug(board, 3, best, 1, &best_point);
         board[best_point.x][best_point.y] = _AI_Occupied_;
 
         if (calc_total_score(board, 1) >= _five_) {
