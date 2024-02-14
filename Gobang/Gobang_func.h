@@ -26,11 +26,11 @@
 #define MAX_SIZE 15
 
 // 定义棋盘的局势
-#define _whole_two_ 10
-#define _whole_three_ 100
+#define _whole_two_ 50
+#define _whole_three_ 200
 #define _two_double_three_ 1000
 #define _whole_four_ 50000
-#define _five_ 10000000
+#define _five_ 100000000
 
 #define _INFINITY_ 1000000000
 
@@ -52,45 +52,6 @@
              board[point_x - 1][point_y - 1] != 0);
 
 /**
- * @brief 由于极大极小值搜索在这里的体现只是将alpha和beta的值调整一下
- *        因此将其写成类函数宏以嵌入形式简化。
- *
- * @param alpha
- * @param beta
- * @param compar 由于两次的比较符号不同，因此需要输入比较符号>(<)
- *
- */
-#define __alpha_beta_cutting__(alpha, beta, compar)                                \
-    do {                                                                           \
-                                                                                   \
-        /* 选择合适的下一步，并将这一步设定为已经落子*/       \
-        choose_next_point(board, role, next, tmp_start_board);                     \
-        board[next->x][next->y] =                                                  \
-            (role == 0) ? _Player_Occupied_ : _AI_Occupied_;                       \
-                                                                                   \
-        /*迭代下一步，并回溯已经落子的那一步*/                    \
-        alphabeta now_best = {-_INFINITY_, _INFINITY_};                            \
-        now_best.alpha =                                                           \
-            calc_next(board, deepth - 1, tmp_best, role ^ 1, tmp_best_point);      \
-        board[next->x][next->y] = 0;                                               \
-                                                                                   \
-        /* 判断是否可以剪枝，并且将已经找到的最好位置更新*/ \
-        if (now_best.alpha compar best.beta) {                                     \
-            if (now_best.alpha compar tmp_best.alpha || first_time) {              \
-                tmp_best.alpha    = now_best.alpha;                                \
-                tmp_best_point->x = next->x;                                       \
-                tmp_best_point->y = next->y;                                       \
-                first_time        = false;                                         \
-            }                                                                      \
-        } else {                                                                   \
-            tmp_best.alpha    = best.beta;                                         \
-            tmp_best_point->x = best_point->x;                                     \
-            tmp_best_point->y = best_point->y;                                     \
-            break;                                                                 \
-        }                                                                          \
-    } while (next->x != -1)
-
-/**
  * @brief 计算当前局势的得分
  *
  */
@@ -107,40 +68,49 @@
         }                                                                      \
     } while (0)
 
-// 定义Alp_or_Bet_t类型
+// 定义__Alp_or_Bet_t类型
 #ifndef __Alp_or_Bet_t_defined
 typedef ssize_t __Alp_or_Bet_t;
 #define __Alp_or_Bet_t_defined
 #endif
-
-typedef struct point {
-    int x;
-    int y;
-} point;
 
 typedef struct alphabeta {
     __Alp_or_Bet_t alpha;
     __Alp_or_Bet_t beta;
 } alphabeta;
 
+typedef struct point {
+    int x;
+    int y;
+} point;
+
+typedef struct range {
+    size_t xmin;
+    size_t xmax;
+    size_t ymin;
+    size_t ymax;
+} range;
+
 extern size_t player_total_score;
 extern size_t AI_total_score;
 
 void           print_board(const char board[MAX_SIZE][MAX_SIZE]);
-__Alp_or_Bet_t calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
-                         alphabeta best, const int role,
-                         point *const best_point);
 __Alp_or_Bet_t calc_next_debug(char board[MAX_SIZE][MAX_SIZE], const int deepth,
                                alphabeta best, const int role,
                                point *const best_point);
 size_t calc_total_score(const char board[MAX_SIZE][MAX_SIZE], const int role);
 void   choose_next_point(const char board[MAX_SIZE][MAX_SIZE], const int role,
-                         point *const next, char tmp_board[MAX_SIZE][MAX_SIZE]);
+                         point *const next, char tmp_board[MAX_SIZE][MAX_SIZE],
+                         range const __range);
 void   copy_start_board(const char board[MAX_SIZE][MAX_SIZE],
                         char       tmp_board[MAX_SIZE][MAX_SIZE]);
 void max_density_point(const char board[MAX_SIZE][MAX_SIZE], point *const next);
-bool is_full(const char board[MAX_SIZE][MAX_SIZE]);
+bool is_full(const char board[MAX_SIZE][MAX_SIZE], range const __range);
 size_t find_score(const char tmp_board[MAX_SIZE][MAX_SIZE], const size_t dir,
                   const size_t i, const size_t j, const int role);
+bool   win_judge(const char board[MAX_SIZE][MAX_SIZE], const int role);
+range  calc_range(const char board[MAX_SIZE][MAX_SIZE]);
+size_t max(size_t a, size_t b);
+size_t min(size_t a, size_t b);
 
 #endif

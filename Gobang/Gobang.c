@@ -10,7 +10,8 @@
  */
 
 #include "Gobang_func.h"
-#include <stddef.h>
+
+// #pragma GCC optimize("Ofast")
 
 point  player_choose;
 point  AI_choose;
@@ -24,33 +25,52 @@ int main(int argc, char const *argv[]) {
 
     // initial board
     char board[MAX_SIZE][MAX_SIZE] = {0};
+    int  is_begin                  = 0;
+    bool is_first_time             = true;
     system("clear");
 
-    printf("请输入回车以开始游戏。");
+    printf("您是否先手？是输入1，否则输入0:");
+    scanf("%d", &is_begin);
+    if (is_begin == 0) {
+        board[MAX_SIZE / 2 - 1][MAX_SIZE / 2 - 1] = _AI_Occupied_;
+    }
 
     // main loop
     while (true) {
+
+        // 让用户输入选定的位置并作一定的错误处理
+        // 将棋盘上该点设为玩家占据的位置
         __prompt_for_move__("请输入你的落子位置。格式为两个坐标，以空格隔开：",
                             player_choose.x, player_choose.y);
         board[player_choose.x - 1][player_choose.y - 1] = _Player_Occupied_;
 
+        // 判断是否获胜
+        if (win_judge(board, 0)) {
+            system("clear");
+            print_board(board);
+            break;
+        }
+
+        if (is_first_time && is_begin) {
+            board[player_choose.x][player_choose.y] = _AI_Occupied_;
+            is_first_time                           = false;
+            continue;
+        }
+        // 给出alphabeta剪枝函数和一些变量
         alphabeta best       = {-_INFINITY_, _INFINITY_};
         point     best_point = {player_choose.x, player_choose.y};
-        calc_next_debug(board, 3, best, 1, &best_point);
+        calc_next_debug(board, 6, best, 1, &best_point);
         board[best_point.x][best_point.y] = _AI_Occupied_;
 
-        if (calc_total_score(board, 1) >= _five_) {
+        // 判断是否获胜
+        if (win_judge(board, 1)) {
             system("clear");
             print_board(board);
             is_win = true;
             break;
         }
 
-        if (calc_total_score(board, 0) >= _five_) {
-            system("clear");
-            print_board(board);
-            break;
-        }
+        // 清屏
         system("clear");
     }
 
