@@ -45,7 +45,7 @@
 #define __prompt_for_move__(prompt, point_x, point_y)                          \
     do {                                                                       \
         scanf("%*[^\n]%*c");                                                   \
-        print_board(board);                                                    \
+        print_board((const char(*)[MAX_SIZE]) board);                          \
         printf(prompt);                                                        \
     } while (scanf("%d%*c%d", &point_x, &point_y) != 2 || point_x < 1 ||       \
              point_x > MAX_SIZE || point_y < 1 || point_y > MAX_SIZE ||        \

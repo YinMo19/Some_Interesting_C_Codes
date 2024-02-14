@@ -40,14 +40,15 @@ int main(int argc, char const *argv[]) {
 
         // 让用户输入选定的位置并作一定的错误处理
         // 将棋盘上该点设为玩家占据的位置
-        __prompt_for_move__("请输入你的落子位置。格式为两个坐标，以空格隔开：",
+        __prompt_for_move__("请输入你的落子位置。格式为两个坐标，以空格隔开：（"
+                            "先横坐标后纵坐标）",
                             player_choose.x, player_choose.y);
         board[player_choose.x - 1][player_choose.y - 1] = _Player_Occupied_;
 
         // 判断是否获胜
-        if (win_judge((const char(*)[MAX_SIZE])board, 0)) {
+        if (win_judge((const char(*)[MAX_SIZE]) board, 0)) {
             __clean;
-            print_board((const char(*)[MAX_SIZE])board);
+            print_board((const char(*)[MAX_SIZE]) board);
             break;
         }
 
