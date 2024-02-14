@@ -45,7 +45,8 @@
 #define __prompt_for_move__(prompt, point_x, point_y)                          \
     do {                                                                       \
         scanf("%*[^\n]%*c");                                                   \
-        print_board((const char(*)[MAX_SIZE]) board);                          \
+        print_board((const char(*)[MAX_SIZE]) board, player_choose,            \
+                    best_point);                                               \
         printf(prompt);                                                        \
     } while (scanf("%d%*c%d", &point_x, &point_y) != 2 || point_x < 1 ||       \
              point_x > MAX_SIZE || point_y < 1 || point_y > MAX_SIZE ||        \
@@ -72,7 +73,8 @@
     do {                                                                       \
         while (true) {                                                         \
                                                                                \
-            choose_next_point(board, role, next, tmp_start_board, __range);    \
+            choose_next_point((const char(*)[MAX_SIZE]) board, role, next,     \
+                              tmp_start_board, __range);                       \
             if (next->x == -1) {                                               \
                 break;                                                         \
             }                                                                  \
@@ -149,7 +151,8 @@ typedef struct range {
 extern size_t player_total_score;
 extern size_t AI_total_score;
 
-void           print_board(char const board[MAX_SIZE][MAX_SIZE]);
+void print_board(char const board[MAX_SIZE][MAX_SIZE], point const player,
+                 point const AI);
 __Alp_or_Bet_t calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
                          alphabeta best, const int role,
                          point *const best_point);

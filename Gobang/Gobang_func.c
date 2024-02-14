@@ -51,7 +51,8 @@ static const char live_one_A_5[]   = "    1";
  *
  * @param board
  */
-void print_board(char const board[MAX_SIZE][MAX_SIZE]) {
+void print_board(char const board[MAX_SIZE][MAX_SIZE], point const player,
+                 point const AI) {
     printf("  ");
     for (size_t i = 0; i < MAX_SIZE; i++) {
         printf("%2zu ", i + 1);
@@ -63,6 +64,10 @@ void print_board(char const board[MAX_SIZE][MAX_SIZE]) {
         for (size_t j = 0; j < MAX_SIZE; j++) {
             if (board[i][j] == 0) {
                 printf(".  ");
+            } else if (i == player.x - 1 && j == player.y - 1) {
+                printf("\033[92mO\033[0m  ");
+            } else if (i == AI.x && j == AI.y) {
+                printf("\033[92mX\033[0m  ");
             } else {
                 printf("%c  ", board[i][j]);
             }
