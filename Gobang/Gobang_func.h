@@ -27,10 +27,10 @@
 
 // 定义棋盘的局势
 #define _whole_two_ 50
-#define _whole_three_ 200
-#define _two_double_three_ 1000
-#define _whole_four_ 50000
-#define _five_ 100000000
+#define _whole_three_ 150
+#define _two_double_three_ 700
+#define _whole_four_ 5000
+#define _five_ 10000000
 
 #define _INFINITY_ 1000000000
 
@@ -68,6 +68,61 @@
         }                                                                      \
     } while (0)
 
+#define __alpha_beta_cutting__(alpha, beta, compar)                            \
+    do {                                                                       \
+        while (true) {                                                         \
+                                                                               \
+            choose_next_point(board, role, next, tmp_start_board, __range);    \
+            if (next->x == -1) {                                               \
+                break;                                                         \
+            }                                                                  \
+            board[next->x][next->y] =                                          \
+                (role == 0) ? _Player_Occupied_ : _AI_Occupied_;               \
+                                                                               \
+            alpha = calc_next(board, deepth - 1, now_best, role ^ 1,           \
+                              tmp_best_point);                                 \
+            if (first_time) {                                                  \
+                now_best.alpha   = alpha;                                      \
+                now_best_point.x = next->x;                                    \
+                now_best_point.y = next->y;                                    \
+                first_time       = false;                                      \
+            }                                                                  \
+                                                                               \
+            if (alpha compar best.beta) {                                      \
+                if (now_best.alpha compar alpha) {                             \
+                    now_best.alpha   = alpha;                                  \
+                    now_best_point.x = next->x;                                \
+                    now_best_point.y = next->y;                                \
+                }                                                              \
+            } else {                                                           \
+                board[next->x][next->y] = 0;                                   \
+                now_best.alpha          = best.beta;                           \
+                break;                                                         \
+            }                                                                  \
+                                                                               \
+            board[next->x][next->y] = 0;                                       \
+        }                                                                      \
+    } while (0)
+
+/**
+ * @brief 预定义清屏指令
+ *
+ */
+#ifdef __unix__
+#ifndef __clean_defined
+#define __clean_defined
+#define __clean system("clear")
+#endif
+#endif
+
+#if defined(WIN32) || defined(_WIN32) || defined(_WIN32_) || defined(WIN64) || \
+    defined(_WIN64) || defined(_WIN64_)
+#ifndef __clean_defined
+#define __clean_defined
+#define __clean system("cls")
+#endif
+#endif
+
 // 定义__Alp_or_Bet_t类型
 #ifndef __Alp_or_Bet_t_defined
 typedef ssize_t __Alp_or_Bet_t;
@@ -94,10 +149,10 @@ typedef struct range {
 extern size_t player_total_score;
 extern size_t AI_total_score;
 
-void           print_board(const char board[MAX_SIZE][MAX_SIZE]);
-__Alp_or_Bet_t calc_next_debug(char board[MAX_SIZE][MAX_SIZE], const int deepth,
-                               alphabeta best, const int role,
-                               point *const best_point);
+void           print_board(char const board[MAX_SIZE][MAX_SIZE]);
+__Alp_or_Bet_t calc_next(char board[MAX_SIZE][MAX_SIZE], const int deepth,
+                         alphabeta best, const int role,
+                         point *const best_point);
 size_t calc_total_score(const char board[MAX_SIZE][MAX_SIZE], const int role);
 void   choose_next_point(const char board[MAX_SIZE][MAX_SIZE], const int role,
                          point *const next, char tmp_board[MAX_SIZE][MAX_SIZE],

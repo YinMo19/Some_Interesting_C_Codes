@@ -27,7 +27,7 @@ int main(int argc, char const *argv[]) {
     char board[MAX_SIZE][MAX_SIZE] = {0};
     int  is_begin                  = 0;
     bool is_first_time             = true;
-    system("clear");
+    __clean;
 
     printf("您是否先手？是输入1，否则输入0:");
     scanf("%d", &is_begin);
@@ -45,33 +45,35 @@ int main(int argc, char const *argv[]) {
         board[player_choose.x - 1][player_choose.y - 1] = _Player_Occupied_;
 
         // 判断是否获胜
-        if (win_judge(board, 0)) {
-            system("clear");
-            print_board(board);
+        if (win_judge((const char(*)[MAX_SIZE])board, 0)) {
+            __clean;
+            print_board((const char(*)[MAX_SIZE])board);
             break;
         }
 
         if (is_first_time && is_begin) {
             board[player_choose.x][player_choose.y] = _AI_Occupied_;
             is_first_time                           = false;
+            __clean;
             continue;
         }
+
         // 给出alphabeta剪枝函数和一些变量
         alphabeta best       = {-_INFINITY_, _INFINITY_};
         point     best_point = {player_choose.x, player_choose.y};
-        calc_next_debug(board, 6, best, 1, &best_point);
+        calc_next(board, 4, best, 1, &best_point);
         board[best_point.x][best_point.y] = _AI_Occupied_;
 
         // 判断是否获胜
-        if (win_judge(board, 1)) {
-            system("clear");
-            print_board(board);
+        if (win_judge((const char(*)[MAX_SIZE]) board, 1)) {
+            __clean;
+            print_board((const char(*)[MAX_SIZE]) board);
             is_win = true;
             break;
         }
 
         // 清屏
-        system("clear");
+        __clean;
     }
 
     printf("%s win!\n", is_win ? "AI" : "Player");
