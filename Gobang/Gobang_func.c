@@ -11,7 +11,8 @@
 
 #include "Gobang_func.h"
 #include <stddef.h>
-// #pragma GCC optimize("Ofast")
+#pragma GCC optimize(2)
+
 
 // 移动方向
 static const int dx[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
@@ -276,7 +277,7 @@ size_t find_score(const char board[MAX_SIZE][MAX_SIZE], const size_t dir,
                strstr(line, dead_three_B_2) != NULL ||
                strstr(line, dead_four_C) != NULL ||
                strstr(line, live_three) != NULL) {
-        return _two_double_three_ * (2 * (role ^ 1) + 1) / 3;
+        return _two_double_three_ * (3 * (role ^ 1) + 1) / 4;
     } else if (strstr(line, dead_three_A_1) != NULL ||
                strstr(line, dead_three_A_2) != NULL ||
                strstr(line, dead_three_C_1) != NULL ||

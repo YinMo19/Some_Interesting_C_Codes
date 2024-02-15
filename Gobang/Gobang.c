@@ -12,7 +12,7 @@
 #include "Gobang_func.h"
 #include <stdio.h>
 
-// #pragma GCC optimize("Ofast")
+#pragma GCC optimize(2)
 
 point     player_choose;
 size_t    player_total_score = 0;
@@ -45,7 +45,7 @@ int main(int argc, char const *argv[]) {
             // 将棋盘上该点设为玩家占据的位置
             __prompt_for_move__(
                 "请输入你的落子位置。格式为两个坐标，以空格隔开：（"
-                "先横坐标后纵坐标）",
+                "先纵坐标后横坐标）",
                 player_choose.x, player_choose.y);
             board[player_choose.x - 1][player_choose.y - 1] = _Player_Occupied_;
 
